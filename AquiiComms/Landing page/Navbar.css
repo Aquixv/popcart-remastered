@@ -1,0 +1,343 @@
+.main-header {
+  width: 100%; 
+  background: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  position: fixed; 
+  top: 0;
+  left: 0; 
+  z-index: 1000;
+  padding: 0;
+}
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px; /* CHANGED: The Magic Bounding Box */
+  width: 100%;       /* ADDED: Ensures it fills smaller screens */
+  margin: 0 auto;    /* Centers the box on giant monitors */
+  padding: 0 4%; 
+  height: 80px;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  margin-left: -35px;
+}
+.logo-section img{
+width: 10vh;
+height: 8vh;
+}
+.nav-links {
+  display: flex;
+  flex: 2;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw; 
+}
+.nav-links a{
+text-decoration: none;
+color: black;
+}
+.dropdown {
+  position: relative;
+}
+
+.dropbtn {
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px !important;
+}
+
+.menu {
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px !important;
+}
+
+.dropdown-content {
+  display: none; 
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+  padding: 10px 0;
+  border-radius: 8px;
+  z-index: 1001;
+}
+.cart-icon {
+  background: inherit;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+  border: .5px solid transparent;
+}
+.cart-icon:hover { transform: scale(1.05); }
+.cart-count{
+color: #000;
+}
+.account-btn {
+  background: none;
+  border: none;
+  font-weight: 700;
+  color: #222;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.search-bar input {
+  padding: 10px 20px;
+  width: 200px;
+  border: 1px solid #e0e0e0;
+  border-radius: 25px;
+  background: #f8f8f8;
+
+}
+.search-bar input:focus {
+  width: 250px;
+  border-color: transparent !important;
+  background: #fff;
+  border: none !important;
+}
+.account-icon{
+width: 50px;
+height: 25px;
+}
+.dropdown-content a {
+  display: block;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+}
+.form{
+display: flex;
+justify-content: space-between;
+}
+.button8{
+background-color: transparent;
+border: none;
+}
+.img8{
+margin-left: 10px;
+}
+/* .dropdown:hover .dropdown-content {
+  display: block; 
+} */
+
+.nav-actions {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+.menu-toggle {
+  display: none;
+}
+.side-actions {
+  display: none;
+}
+.mobile-search-overlay {
+  display: none;
+
+}
+@media (min-width: 769px) {
+  .dropdown:hover .dropdown-content {
+    display: block; 
+  }
+  .nav-links a.menu, .dropbtn {
+    position: relative;
+    color: #555;
+    transition: color 0.3s ease;
+  }
+  .nav-links a.menu:hover, .dropdown:hover .dropbtn {
+    color: #000;
+  }
+
+  .nav-links a.menu::after, .dropbtn::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px; 
+    left: 0;
+    background-color: #000;
+    transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+  }
+
+  .nav-links a.menu:hover::after, .dropdown:hover .dropbtn::after {
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .cart-count{
+  color: #000;
+  gap: 5px;
+  text-align: center;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  }
+  .cart-count img{
+  height: 4vh;
+  width: 4vw;
+  }
+  .close{
+  background-color: #fff;
+  color: #000;
+  border: transparent;
+  font-size: 20px;
+  margin-left: 20px;
+  margin-top: -5px;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+  .nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    height: 80px;
+  }
+
+  .logo-section {
+    margin-left: 0;
+  }
+
+  .logo-section img {
+    width: 20vw;
+    height: 10vh;
+  }
+
+  .menu-toggle {
+    display: block;
+    font-size: 2rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    z-index: 2001;
+  }
+  .nav-links {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px; 
+    height: 100vh;
+    background: white;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 80px 20px 20px;
+    transition: 0.3s ease-in-out;
+    z-index: 2000;
+  }
+
+  .nav-links.active {
+    left: 0;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  }
+
+  .side-actions {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    width: 100%;
+  }
+
+  .side-actions button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    background: #f8f8f8;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .mobile-search-overlay {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    transition: 0.3s;
+    z-index: 1500;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .mobile-search-overlay.active {
+    top: 80px;
+  }
+
+  .mobile-search-overlay input {
+    flex: 1;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+  }
+
+  .sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .dropdown-content {
+  position: static !important;
+  box-shadow: none !important;
+  display: none;
+  flex-direction: column;
+  padding-left: 20px; 
+  margin-top: 10px;
+  border-left: 2px solid #eee;
+}
+
+.dropdown-content.show {
+  display: flex !important;
+}
+
+.dropdown-content a {
+  padding: 12px 0;
+  font-size: 1.1rem;
+}
+}
