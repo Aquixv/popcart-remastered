@@ -1,10 +1,16 @@
+import { Product } from './types';
 import React, { useEffect, useState } from 'react';
 import './Products.css';
 import { Link } from 'react-router-dom';
 import { useCart } from '../src/CartContext';
 import { useFavorites } from '../src/FavoritesContext';
 
-const ProductCard = ({ product, mode }) => {
+type ProductCardProps = {
+  product: Product;
+  mode?: 'new' | 'deal' | 'regular';
+};
+
+const ProductCard = ({ product, mode } :ProductCardProps) => {
 
   const [isFavorite, setIsFavorite] = useState(false);
   
@@ -14,16 +20,17 @@ const { addToCart } = useCart();
 
 const originalPrice = (product.price / (1 - product.discountPercentage / 100)).toFixed(2);
 
-const handleAddToCart = (e) => {
+const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
   if (window.innerWidth <= 768) {
    addToCart(product, 1);
     return;
   }
     e.preventDefault();
     e.stopPropagation(); 
-
-    const card = e.target.closest('.product-card');
-    const img = card.querySelector('img');
+    const target = e.target as HTMLElement;
+    
+    const card = target.closest('.product-card');
+    const img = card?.querySelector('img');
     const cartIcon = document.querySelector('.nav-actions .cart-icon');
 
     if (!img || !cartIcon) {

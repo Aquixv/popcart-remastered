@@ -1,3 +1,7 @@
+type NavbarProps = {
+  cartCount?: number; 
+  isLoggedIn: boolean;
+};
 import React from 'react';
 import logo from '/default.png';
 import { useState } from 'react';
@@ -20,7 +24,7 @@ const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   // const [user, setUser] = React.useState(null);
 const {cartCount} = useCart();
-const handleSearch = (e) => {
+const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   if (searchTerm.trim()) {
     navigate(`/?keyword=${searchTerm}`);

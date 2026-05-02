@@ -1,12 +1,13 @@
 import React from 'react';
 import { useCart } from '../src/CartContext';
 import { useNavigate } from 'react-router-dom';
+import { Product } from './types';
 
 const Cart = () => {
   const { cart, removeFromCart, addToCart, decreaseQuantity } = useCart();
   const navigate = useNavigate();
 
-  const calculateTotal = () => {
+  const calculateTotal = ():string => {
     if (!cart || !cart.items) return 0;
     return cart.items.reduce((total, item) => {
       if (!item || !item.product || !item.product.price) return total; 

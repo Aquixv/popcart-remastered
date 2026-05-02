@@ -2,27 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../src/AuthContext';
 import ProfilePicUpload from './profilepic';
+import { Product } from './types';
+import { UserProfile } from './types';
+import type { UserInfo } from './types';
 
 const Seller = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState(null);
-  const [myproducts, setMyproducts] = useState(null);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<'profile' | 'myProducts' | 'addProduct' | 'analytics'>('profile');
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [category, setCategory] = useState('Tech');
   const [description, setDescription] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [myProducts, setMyProducts] = useState([]);
+  const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [revenueData, setRevenueData] = useState({ totalRevenue: 0, totalItemsSold: 0 });
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;;
   
   const handleUpgradeToSeller = async () => {
     setIsUpgrading(true);
@@ -30,7 +32,7 @@ const Seller = () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/profile/upgrade`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo?.token}`,
         },
       });
 
@@ -127,7 +129,7 @@ useEffect(() => {
     navigate('/login');
   };
 
-  const handleProductSubmit = async (e) => {
+  const handleProductSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
    e.preventDefault();
     
     if (!image) {
@@ -148,8 +150,7 @@ useEffect(() => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/products`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-          // NO Content-Type header here! The browser handles it automatically for FormData.
+          Authorization: `Bearer ${userInfo?.token}`,
         },
         body: formData,
       });
@@ -173,12 +174,12 @@ useEffect(() => {
       setIsPublishing(false);
     }
   };
-  const handleDeleteProduct = async (productId) => {
+  const handleDeleteProduct = async (productId:string) => {
     if (window.confirm("Are you sure you want to delete this product? This cannot be undone.")) {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}`, {
           method: 'DELETE',
-          headers: { Authorization: `Bearer ${userInfo.token}` }
+          headers: { Authorization: `Bearer ${userInfo?.token}` }
         });
 
         if (response.ok) {
@@ -313,7 +314,7 @@ useEffect(() => {
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Description</label>
                   <textarea 
-                    rows="4" 
+                    rows={4}
                     required
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -338,7 +339,7 @@ useEffect(() => {
                     type="file" 
                     accept="image/*" 
                     required
-                    onChange={(e) => setImage(e.target.files[0])}
+                    onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
                     style={{ width: '100%', padding: '10px', background: '#f9f9f9', borderRadius: '5px', border: '1px dashed #ccc' }} 
                   />
                   {image && (

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from './Productcard';
+import { Product } from './types';
 
-const Deals = () => {
-  const [products, setProducts] = useState([]);
+const New = () => {
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/products?skip=30&limit=20`)
+    fetch(`${import.meta.env.VITE_API_URL}/products?skip=50&limit=20`)
       .then(res => res.json())
       .then(data => setProducts(data.products));
   }, []);
@@ -13,14 +14,14 @@ const Deals = () => {
   return (
     <section className="product-section" style={{ paddingTop: '40px', minHeight: '80vh' }}>
       <div className="section-header">
-        <h2><img style={{width:'4vw', height:'4vh'}} src="https://www.svgrepo.com/show/506715/fire.svg" alt="" /> Today's Best Deals</h2>
+        <h2>New Arrivals!</h2>
       </div>
       <div className="product-grid page-grid">
         {products.map(product => (
-          <ProductCard key={product._id} product={product} mode="deal" /> 
+          <ProductCard key={product._id} product={product} mode="new" /> 
         ))}
       </div>
     </section>
   );
 };
-export default Deals;
+export default New;

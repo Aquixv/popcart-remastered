@@ -1,19 +1,18 @@
+import type { Product } from './types';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import ProductCard from '../Landing page/Productcard'; // Adjust this path to your actual component!
-import { useFavorites } from '../src/FavoritesContext'; // Adjust path
+import ProductCard from './Productcard';
+import { useFavorites } from '../src/FavoritesContext'; 
 
 const Favorites = () => {
-  const [favoriteProducts, setFavoriteProducts] = useState([]);
+  const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // We bring in the context just to listen for changes. 
-  // If a user "un-hearts" an item on this page, this array updates and triggers a re-fetch!
   const { favorites } = useFavorites(); 
 
   useEffect(() => {
     const fetchFullFavorites = async () => {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
       if (!userInfo || !userInfo.token) {
         setIsLoading(false);
         return;
@@ -26,8 +25,6 @@ const Favorites = () => {
 
         if (response.ok) {
           const data = await response.json();
-          // Because your backend `getFavorites` controller uses `.populate('favorites')`,
-          // this 'data' is an array of fully-fleshed-out product objects!
           setFavoriteProducts(data);
         }
       } catch (error) {
@@ -38,8 +35,7 @@ const Favorites = () => {
     };
 
     fetchFullFavorites();
-  }, [favorites.length]); // Re-run this if they remove an item from their wishlist
-
+  }, [favorites.length]); 
   if (isLoading) {
     return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading your wishlist...</div>;
   }

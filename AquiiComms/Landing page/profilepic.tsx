@@ -1,17 +1,18 @@
 import { useState, useRef } from 'react';
+import type { UserInfo } from './types';
 
-const user = JSON.parse(localStorage.getItem('userInfo'));
+const user = JSON.parse(localStorage.getItem('userInfo') || "{}");
 const ProfilePicUpload = () => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const fileInputRef = useRef(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleIconClick = () => {
-    fileInputRef.current.click();
-  };
+const handleIconClick = () => {
+  fileInputRef.current?.click(); 
+};
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file)); 
@@ -28,7 +29,7 @@ const ProfilePicUpload = () => {
       console.log(`2. Inside FormData -> ${key}:`, value);
     }
     try {
-      const savedUser = JSON.parse(localStorage.getItem('userInfo'));
+      const savedUser = JSON.parse(localStorage.getItem('userInfo') || "{}");
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/profile/upload`, {
         method: 'POST',

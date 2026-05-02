@@ -2,22 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../src/AuthContext';
 import ProfilePicUpload from './profilepic';
+import type { UserProfile, Order, UserInfo } from './types'; 
 
 const Account = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'selling' | 'settings'>('profile');
   
-  const [profile, setProfile] = useState(null);
-  const [activeTab, setActiveTab] = useState('profile');
   const [isUpgrading, setIsUpgrading] = useState(false);
-  const [myOrders, setMyOrders] = useState([]);
+  const [myOrders, setMyOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
-  
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;
   
   const handleUpgradeToSeller = async () => {
     setIsUpgrading(true);
     try {
+      if (!userInfo?.token) return; 
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/profile/upgrade`, {
         method: 'PUT',
         headers: {
@@ -40,8 +42,9 @@ const Account = () => {
       setIsUpgrading(false);
     }
   };
-useEffect(() => {
-    if (activeTab === 'orders' && userInfo) {
+
+  useEffect(() => {
+    if (activeTab === 'orders' && userInfo?.token) {
       const fetchOrders = async () => {
         try {
           const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/orders`, {
@@ -59,7 +62,7 @@ useEffect(() => {
       };
       fetchOrders();
     }
-  }, [activeTab, userInfo]);
+  }, [activeTab, userInfo?.token]);
   
   useEffect(() => {
     if (!userInfo || !userInfo.token) {
@@ -118,14 +121,15 @@ useEffect(() => {
             <button onClick={() => setActiveTab('profile')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'profile' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/512729/profile-round-1342.svg" alt="" /> My Profile</button>
             <button onClick={() => setActiveTab('orders')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'orders' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/301014/boxes.svg" alt="" /> Order History</button>
             <button onClick={() => setActiveTab('selling')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'selling' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> 
-  <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/147833/three-dollars-bills.svg" alt="" /> 
-  {profile.role === 'admin' ? ' Admin' : profile.role === 'seller' ? ' Seller Dashboard' : 'Selling'}
-</button>
-<button onClick={() => setActiveTab('settings')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'settings' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/527439/settings.svg" alt="" /> Settings</button>
+              <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/147833/three-dollars-bills.svg" alt="" /> 
+              {profile.role === 'admin' ? ' Admin' : profile.role === 'seller' ? ' Seller Dashboard' : 'Selling'}
+            </button>
+            <button onClick={() => setActiveTab('settings')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'settings' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/527439/settings.svg" alt="" /> Settings</button>
 
             <button onClick={handleLogout} style={{ padding: '12px 15px', textAlign: 'left', background: '#fff0f0', color: '#d32f2f', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', marginTop: '20px' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/472582/door-open.svg" alt="" /> Log Out</button>
           </nav>
         </div>
+        
         <div className="account-content" style={{ flex: '3', minWidth: '300px', background: '#fff', borderRadius: '15px', padding: '40px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
           
           {activeTab === 'profile' && (
@@ -243,7 +247,6 @@ useEffect(() => {
                     </button>
                   </Link>
                 )}
-
               </div>
             </div>
           )}

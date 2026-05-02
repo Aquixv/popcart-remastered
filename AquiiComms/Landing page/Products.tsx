@@ -2,9 +2,17 @@ import React, { useEffect, useState } from 'react';
 import './Products.css';
 import ProductCard from './Productcard';
 import { Link } from 'react-router-dom';
+import type { Product } from './types';
 
-const ProductList = ({ title, categoryName, limit = 8 }) => {
-  const [products, setProducts] = useState([]);
+type ProductProps = {
+  title: string;
+  categoryName?: string;
+  limit?: number;      
+};
+
+const ProductList = ({ title, categoryName, limit = 8 }: ProductProps) => {
+  
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
