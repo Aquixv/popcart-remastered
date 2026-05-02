@@ -8,7 +8,7 @@ const Cart = () => {
   const navigate = useNavigate();
 
   const calculateTotal = ():string => {
-    if (!cart || !cart.items) return 0;
+    if (!cart || !cart.items) return "0.00";
     return cart.items.reduce((total, item) => {
       if (!item || !item.product || !item.product.price) return total; 
       

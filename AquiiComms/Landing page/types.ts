@@ -18,6 +18,9 @@ export type UserProfile = {
 export type UserInfo = {
   token: string;
   avatar?: string;
+  name: string;
+  email: string;
+  role: UserRole;
 };
 export type OrderItem = {
   name: string;
@@ -46,4 +49,12 @@ export type ShippingAddress = {
   city: string;
   postalCode: string;
   country: string;
+};
+export type CartContextType = {
+  cart: CartData;
+  cartCount: number;
+  addToCart: (product: Product, quantity?: number) => Promise<void>;
+  removeFromCart: (productId: string) => Promise<void>;
+  fetchCart: () => Promise<void>;
+  decreaseQuantity: (productId: string) => Promise<void>;
 };

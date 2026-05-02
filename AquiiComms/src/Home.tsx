@@ -7,9 +7,10 @@ import CategoryList from '../Landing page/Categories'
 import ServiceSection from '../Landing page/Servicesection'
 import Footer from '../Landing page/Footer'
 import ProductCard from '../Landing page/Productcard';
+import { Product } from './types';
 
 const Home = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const location = useLocation();
   
   const keyword = new URLSearchParams(location.search).get('keyword');

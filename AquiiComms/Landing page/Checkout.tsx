@@ -2,19 +2,24 @@ import React, { useState } from 'react';
 import { useCart } from '../src/CartContext'; 
 import { PaystackButton } from 'react-paystack';
 import { useNavigate } from 'react-router-dom';
+import type { ShippingAddress, UserInfo } from './types';
+type PaystackResponse = {
+  reference: string;
+  status: string;
+};
 
 const Checkout = () => {
   const { cart, cartCount, fetchCart } = useCart();
   const navigate = useNavigate();
 
-  const [shippingAddress, setShippingAddress] = useState({
-    address: '',
-    city: '',
-    postalCode: '',
-    country: ''
-  });
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
+  address: '',
+  city: '',
+  postalCode: '',
+  country: ''
+});
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;
  const totalAmount = cart?.items?.reduce((total, item) => {
     if (!item || !item.product || !item.product.price) return total;
     return total + (item.product.price * item.quantity);
@@ -27,9 +32,9 @@ const Checkout = () => {
     publicKey,
     metadata: {
       name: userInfo?.name,
-    },
+    } as any,
     text: `Pay $${totalAmount.toFixed(2)} Now`,
-    onSuccess: async (response) => {
+    onSuccess: async (response: PaystackResponse) => {
       console.log("💳 Paystack Success!", response);
       
       try {
@@ -81,7 +86,7 @@ const Checkout = () => {
     },
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShippingAddress({ ...shippingAddress, [e.target.name]: e.target.value });
   };
   if (!cart || !cart.items || cart.items.length === 0) {
@@ -115,11 +120,6 @@ const Checkout = () => {
       }}>
         <PaystackButton  className='pay' 
           {...paystackProps} 
-          style={{ 
-            width: '100%', padding: '16px', background: 'green', color: 'white', 
-            border: 'none', borderRadius: '6px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}
         />
       </div>
     </div>

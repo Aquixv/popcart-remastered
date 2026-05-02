@@ -1,19 +1,17 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import type { CartData, CartItem, Product, UserInfo, CartContextType } from './types';
+const CartContext = createContext<CartContextType | null>(null);
+export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [authCart, setAuthCart] = useState<CartData | null>(null); 
 
-const CartContext = createContext();
-
-export const CartProvider = ({ children }) => {
-  const [authCart, setAuthCart] = useState(null); 
-  
-  const [guestCart, setGuestCart] = useState(() => {
+  const [guestCart, setGuestCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('guestCart');
     return saved ? JSON.parse(saved) : [];
   });
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;
   const isLoggedIn = userInfo && userInfo.token;
-
-  const displayCart = { items: isLoggedIn && authCart ? authCart.items : guestCart };
+  const displayCart: CartData = { items: isLoggedIn && authCart ? authCart.items : guestCart };
 
   const cartCount = displayCart.items.reduce((total, item) => total + item.quantity, 0);
 
@@ -21,7 +19,7 @@ export const CartProvider = ({ children }) => {
     if (!isLoggedIn) return; 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/cart`, {
-        headers: { Authorization: `Bearer ${userInfo.token}` }
+        headers: { Authorization: `Bearer ${userInfo?.token}` }
       });
       if (response.ok) {
         const data = await response.json();
@@ -32,14 +30,14 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async (product, quantity = 1) => {
+  const addToCart = async (product: Product, quantity = 1) => {
     if (isLoggedIn) {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/cart`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${userInfo.token}`
+            Authorization: `Bearer ${userInfo?.token}`
           },
           body: JSON.stringify({ productId: product._id, quantity }) 
         });
@@ -47,24 +45,26 @@ export const CartProvider = ({ children }) => {
       } catch (error) {
         console.error("Failed to add to auth cart", error);
       }
-    } const updatedCart = [...guestCart];
-const existingItemIndex = updatedCart.findIndex(item => item?.product?._id === product._id);
+    } 
+    
+    const updatedCart = [...guestCart];
+    const existingItemIndex = updatedCart.findIndex(item => item?.product?._id === product._id);
 
-if (existingItemIndex >= 0) {
-  updatedCart[existingItemIndex].quantity += 1;
-} else {
-  updatedCart.push({ product: product, quantity: 1 });
-}
-setGuestCart(updatedCart);
-localStorage.setItem('guestCart', JSON.stringify(updatedCart));
+    if (existingItemIndex >= 0) {
+      updatedCart[existingItemIndex].quantity += 1;
+    } else {
+      updatedCart.push({ product: product, quantity: 1 });
+    }
+    setGuestCart(updatedCart);
+    localStorage.setItem('guestCart', JSON.stringify(updatedCart));
   };
 
-  const removeFromCart = async (productId) => {
+  const removeFromCart = async (productId: string) => {
     if (isLoggedIn) {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/cart/${productId}`, {
           method: 'DELETE',
-          headers: { Authorization: `Bearer ${userInfo.token}` }
+          headers: { Authorization: `Bearer ${userInfo?.token}` }
         });
         if (response.ok) fetchCart();
       } catch (error) {
@@ -76,12 +76,12 @@ localStorage.setItem('guestCart', JSON.stringify(updatedCart));
       localStorage.setItem('guestCart', JSON.stringify(updatedCart));
     }
   };
-const decreaseQuantity = async (productId) => {
+  const decreaseQuantity = async (productId: string) => {
     if (isLoggedIn) {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/cart/${productId}/decrease`, {
           method: 'PUT',
-          headers: { Authorization: `Bearer ${userInfo.token}` }
+          headers: { Authorization: `Bearer ${userInfo?.token}` }
         });
         if (response.ok) fetchCart();
       } catch (error) {
@@ -102,6 +102,7 @@ const decreaseQuantity = async (productId) => {
       }
     }
   };
+
   useEffect(() => {
     fetchCart();
   }, []);
@@ -113,4 +114,10 @@ const decreaseQuantity = async (productId) => {
   );
 };
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
+  return context;
+};
