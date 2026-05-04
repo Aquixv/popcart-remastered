@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductCard from '../Landing page/Productcard';
 import '../Landing page/Products.css';
+import type { Product } from './types';
 
-const CategoryPage = ({ isAll = false }) => {
-  const { categoryName } = useParams(); 
+const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
+  const { categoryName = '' } = useParams(); 
   const [activeFilter, setActiveFilter] = useState('All');
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const categoryMap = {
-    "womens-fashion": ["womens-dresses", "womens-shoes", "womens-watches", "womens-bags", "womens-jewellery"],
-    "mens-fashion": ["mens-shirts", "mens-shoes", "mens-watches"],
-    "electronics": ["smartphones", "laptops", "tablets"],
-  };
+  const categoryMap: Record<string, string[]> = {
+  "womens-fashion": ["womens-dresses", "womens-shoes", "womens-watches", "womens-bags", "womens-jewellery"],
+  "mens-fashion": ["mens-shirts", "mens-shoes", "mens-watches"],
+  "electronics": ["smartphones", "laptops", "tablets"],
+};
 
   useEffect(() => {
     window.scrollTo(0, 0);

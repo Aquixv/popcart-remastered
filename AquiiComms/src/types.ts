@@ -10,6 +10,7 @@ export type Product = {
   brand?: string; 
   user?: UserProfile | null;
   reviews?: Review[];
+  category:string;
 };
 export type UserRole = 'customer' | 'seller' | 'admin';
 

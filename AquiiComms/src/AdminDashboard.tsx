@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';  
+import type { UserProfile, UserRole, UserInfo } from './types';
+type AdminUser = UserProfile & { _id: string };
 
 const AdminDashboard = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   
-  const [activeTab, setActiveTab] = useState('users');
-  const [allUsers, setAllUsers] = useState([]);
+  const [activeTab, setActiveTab] = useState<'users' | 'inventory' | 'analytics'>('users');
+const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null') as UserInfo & { _id: string, role: string } | null;
  
   useEffect(() => {
     if (!userInfo || userInfo.role !== 'admin') {
-      alert("Access Denied. God Mode requires Admin privileges.");
+      alert("Access Denied. Admin privileges Required!.");
       navigate('/');
     }
   }, [navigate, userInfo]);
@@ -44,7 +46,7 @@ const AdminDashboard = () => {
     logout();
     navigate('/login');
   };
-const handleRoleChange = async (userId, newRole) => {
+const handleRoleChange = async (userId: string, newRole:string) => {
     if (!window.confirm(`Are you sure you want to change this user to ${newRole}?`)) return;
 
     try {
@@ -52,15 +54,16 @@ const handleRoleChange = async (userId, newRole) => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`
+          Authorization: `Bearer ${userInfo?.token}`
         },
         body: JSON.stringify({ role: newRole })
       });
 
       if (response.ok) {
-        setAllUsers(allUsers.map(user => 
-          user._id === userId ? { ...user, role: newRole } : user
-        ));
+  setAllUsers(allUsers.map(user => 
+    // We explicitly cast newRole 'as UserRole' so TS knows it's safe!
+    user._id === userId ? { ...user, role: newRole as UserRole } : user
+  ));
       } else {
         const data = await response.json();
         alert(data.message || "Failed to update role");
@@ -131,8 +134,8 @@ const handleRoleChange = async (userId, newRole) => {
                             <select 
                               value={user.role} 
                               onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                              disabled={user._id === userInfo._id}
-                              style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc', cursor: user._id === userInfo._id ? 'not-allowed' : 'pointer' }}
+                              disabled={user._id === userInfo?._id}
+                              style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc', cursor: user._id === userInfo?._id ? 'not-allowed' : 'pointer' }}
                             >
                               <option value="customer">Customer</option>
                               <option value="seller">Seller</option>
