@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken'
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import User, { IUser } from '../models/Schema'; 
 
-export interface AuthRequest extends Request {
+export interface AuthRequest extends Omit<Request, 'user'> {
   user?: IUser | null;
 }
 

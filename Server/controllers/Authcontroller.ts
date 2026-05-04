@@ -1,8 +1,11 @@
-const User = require('../models/Schema');
-const generateToken = require('../config/GenerateToken'); 
-const crypto = require('crypto');
-const sendEmail = require('../util/email');
-const forgotPassword = async (req, res) => {
+import { Request, Response } from 'express';
+import crypto from 'crypto';
+import User from '../models/Schema';
+import generateToken from '../config/GenerateToken'; 
+import sendEmail from '../util/email';
+import { AuthRequest } from '../middleware/authMiddleware'; 
+
+export const forgotPassword = async (req: Request, res: Response): Promise<any> => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
@@ -11,7 +14,7 @@ const forgotPassword = async (req, res) => {
 
     const resetToken = crypto.randomBytes(20).toString('hex');
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; 
+    user.resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000); 
     await user.save();
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
@@ -28,7 +31,7 @@ const forgotPassword = async (req, res) => {
       html: htmlMessage
     });
 
-    res.status(200).json({ message: "Email sent successfully!" });
+    return res.status(200).json({ message: "Email sent successfully!" });
 
   } catch (error) {
     console.error(error);
@@ -38,14 +41,15 @@ const forgotPassword = async (req, res) => {
       user.resetPasswordExpire = undefined;
       await user.save();
     }
-    res.status(500).json({ message: "Email could not be sent" });
+    return res.status(500).json({ message: "Email could not be sent" });
   }
 };
-const resetPassword = async (req, res) => {
+
+export const resetPassword = async (req: Request, res: Response): Promise<any> => {
   try {
     const user = await User.findOne({
       resetPasswordToken: req.params.token,
-      resetPasswordExpire: { $gt: Date.now() } // $gt means "greater than" right now
+      resetPasswordExpire: { $gt: new Date() } 
     });
 
     if (!user) {
@@ -57,17 +61,19 @@ const resetPassword = async (req, res) => {
     user.resetPasswordExpire = undefined;
     await user.save();
 
-    res.status(200).json({ message: "Password reset successful!" });
+    return res.status(200).json({ message: "Password reset successful!" });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error resetting password." });
+    return res.status(500).json({ message: "Server error resetting password." });
   }
 };
-const registerUser = async (req, res) => {
+
+export const registerUser = async (req: Request, res: Response): Promise<any> => {
   try {
     const { name, email, password } = req.body;
     const userExists = await User.findOne({ email });
+    
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -78,54 +84,55 @@ const registerUser = async (req, res) => {
       password,
       authProvider: 'local' 
     });
+    
     if (user) {
-      res.status(201).json({
+      return res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user._id), 
+        token: generateToken(user._id.toString())
       });
     } else {
-      res.status(400).json({ message: 'Invalid user data' });
+      return res.status(400).json({ message: 'Invalid user data' });
     }
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
-const loginUser = async (req, res) => {
+export const loginUser = async (req: Request, res: Response): Promise<any> => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+    
     if (user && (await user.matchPassword(password))) {
-      res.json({
-  _id: user._id,
-  name: user.name,
-  email: user.email,
-  role: user.role,
-  token: generateToken(user._id),
-  avatar: user.avatar 
-});
+      return res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id.toString()),
+        avatar: user.avatar 
+      });
     } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
-
-const upgradeToSeller = async (req, res) => {
+export const upgradeToSeller = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user?._id);
 
     if (user) {
       user.role = 'seller';
       const updatedUser = await user.save();
-      const token = req.headers.authorization.split(' ')[1];
+      const token = req.headers.authorization?.split(' ')[1];
 
-      res.json({
+      return res.json({
         _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
@@ -134,11 +141,10 @@ const upgradeToSeller = async (req, res) => {
         token: token,
       });
     } else {
-      res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
     console.error("Upgrade error:", error);
-    res.status(500).json({ message: 'Server error during upgrade' });
+    return res.status(500).json({ message: 'Server error during upgrade' });
   }
 };
-module.exports = { registerUser, loginUser, forgotPassword, resetPassword, upgradeToSeller };
