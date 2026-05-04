@@ -8,7 +8,7 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage('');
@@ -69,7 +69,7 @@ const ForgotPassword = () => {
         </form>
         
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', color: '#0066cc', cursor: 'pointer', textDecoration: 'none', color:'black'}}>
+          <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', color: '#0066cc', cursor: 'pointer', textDecoration: 'none'}}>
             Back to Login
           </button>
         </div>

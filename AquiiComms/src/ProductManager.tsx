@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import type { Product } from './types';
 
 const ProductManager = () => {
   const navigate = useNavigate();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
   useEffect(() => {
     if (!userInfo || userInfo.role !== 'admin') {
       navigate('/');
@@ -33,7 +34,7 @@ const ProductManager = () => {
     fetchAllProducts();
   }, [userInfo]);
 
-  const handleDelete = async (productId) => {
+  const handleDelete = async (productId:string) => {
     if (window.confirm("DELETE THIS PRODUCT? This cannot be undone.")) {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}`, {

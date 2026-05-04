@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCart } from './CartContext';
+import { Product, Review } from './types';
+import { number } from 'yup';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState('');
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
 
   const fetchProduct = async () => {
     try {
@@ -31,7 +33,7 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
-  const submitHandler = async (e) => {
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setReviewError('');
     setReviewSuccess('');
@@ -61,13 +63,16 @@ const ProductDetails = () => {
     }
   };
 
-  const handleAddToCart = (e) => {
-    if (window.innerWidth <= 768) {
+const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+  if (!product) return; 
+
+  if (window.innerWidth <= 768) {
       addToCart(product, 1);
       return;
     }
-    const container = e.target.closest('.product-details-container'); 
-    const img = container.querySelector('img');
+    const target = e.target as HTMLElement;
+    const container = target.closest('.product-details-container'); 
+    const img = container?.querySelector('img');
     const cartIcon = document.querySelector('.nav-actions .cart-icon');
 
     if (!img || !cartIcon) {
@@ -185,7 +190,7 @@ const ProductDetails = () => {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Rating</label>
                 <select 
                   value={rating} 
-                  onChange={(e) => setRating(e.target.value)}
+                  onChange={(e) => setRating(Number(e.target.value))}
                   style={{ padding: '10px', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
                 >
                   <option value="5">5 - Excellent</option>
@@ -199,7 +204,7 @@ const ProductDetails = () => {
               <div>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Comment</label>
                 <textarea 
-                  rows="4"
+                  rows={4}
                   required
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}

@@ -7,6 +7,9 @@ export type Product = {
   description: string;
   rating: number;
   stock: number;
+  brand?: string; 
+  user?: UserProfile | null;
+  reviews?: Review[];
 };
 export type UserRole = 'customer' | 'seller' | 'admin';
 
@@ -64,4 +67,13 @@ export type FavoritesContextType = {
   favorites: string[]; 
   toggleFavorite: (productId: string) => Promise<void>;
   fetchFavorites: () => Promise<void>;
+};
+export type Review = {
+  _id?: string;
+  name?: string;
+  reviewerName?: string;
+  rating: number;
+  comment: string;
+  createdAt?: string;
+  date?: string;
 };
