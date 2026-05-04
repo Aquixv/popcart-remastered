@@ -55,3 +55,13 @@ export type CartContextType = {
   fetchCart: () => Promise<void>;
   decreaseQuantity: (productId: string) => Promise<void>;
 };
+export type AuthContextType = {
+  user: UserInfo | null;
+  login: (userData: UserInfo) => void;
+  logout: () => void;
+};
+export type FavoritesContextType = {
+  favorites: string[]; 
+  toggleFavorite: (productId: string) => Promise<void>;
+  fetchFavorites: () => Promise<void>;
+};

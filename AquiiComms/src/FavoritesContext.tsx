@@ -1,13 +1,13 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import type { FavoritesContextType, Product, UserInfo } from './types';
+const FavoritesContext = createContext<FavoritesContextType | null>(null);
 
-const FavoritesContext = createContext();
-
-export const FavoritesProvider = ({ children }) => {
-  const [favorites, setFavorites] = useState([]); 
+export const FavoritesProvider = ({ children }: { children: React.ReactNode }) => {
+  const [favorites, setFavorites] = useState<string[]>([]);
 
 
   const fetchFavorites = async () => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
     if (!userInfo || !userInfo.token) {
       setFavorites([]);
       return;
@@ -18,7 +18,7 @@ export const FavoritesProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${userInfo.token}` }
       });
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as Product[];
         const favoriteIds = data.map(item => item._id);
         setFavorites(favoriteIds);
       }
@@ -27,8 +27,8 @@ export const FavoritesProvider = ({ children }) => {
     }
   };
 
-  const toggleFavorite = async (productId) => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const toggleFavorite = async (productId:string) => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
 
     if (!userInfo || !userInfo.token) {
       alert("Please log in to save your favorite items!");
@@ -64,4 +64,11 @@ export const FavoritesProvider = ({ children }) => {
   );
 };
 
-export const useFavorites = () => useContext(FavoritesContext);
+export const useFavorites = () => {
+  const context = useContext(FavoritesContext);
+  if (!context) {
+    throw new Error("useFavorites must be used within a FavoritesProvider");
+  }
+  
+  return context;
+};

@@ -10,7 +10,7 @@ const ResetPassword = () => {
   const { token } = useParams(); 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage('');
     setError('');
