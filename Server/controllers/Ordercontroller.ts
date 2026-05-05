@@ -1,8 +1,9 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+import { AuthRequest } from "../middleware/authMiddleware";
 
-const createOrder = async (req, res) => {
+const createOrder = async (req: AuthRequest, res: Response) => {
   try {
     const { orderItems, shippingAddress, paymentResult, itemsPrice, totalPrice } = req.body;
     const userId = req.user._id;

@@ -1,8 +1,10 @@
-const Cart = require('../models/Cart');
+import { Response } from 'express';
+import { AuthRequest } from '../middleware/authMiddleware'; 
+import Cart from '../models/Cart'; 
 
-const addToCart = async (req, res) => {
-  const { productId, quantity } = req.body; 
-  const userId = req.user._id;
+export const addToCart = async (req: AuthRequest, res: Response): Promise<any> => {
+  const { productId, quantity }: { productId: string; quantity: number } = req.body; 
+  const userId = req.user?._id;
 
   try {
     let cart = await Cart.findOne({ user: userId });
@@ -13,7 +15,7 @@ const addToCart = async (req, res) => {
       if (itemIndex > -1) {
         cart.items[itemIndex].quantity += quantity;
       } else {
-        cart.items.push({ product: productId, quantity });
+        cart.items.push({ product: productId as any, quantity });
       }
       
       cart = await cart.save();
@@ -32,9 +34,9 @@ const addToCart = async (req, res) => {
   }
 };
 
-const getCart = async (req, res) => {
+export const getCart = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const cart = await Cart.findOne({ user: req.user._id })
+    const cart = await Cart.findOne({ user: req.user?._id })
       .populate('items.product'); 
 
     if (!cart) {
@@ -46,9 +48,10 @@ const getCart = async (req, res) => {
     return res.status(500).json({ message: "Server error fetching cart" });
   }
 };
-const removeFromCart = async (req, res) => {
+
+export const removeFromCart = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const userId = req.user._id;
+    const userId = req.user?._id;
     const productId = req.params.productId; 
 
     let cart = await Cart.findOne({ user: userId });
@@ -67,9 +70,10 @@ const removeFromCart = async (req, res) => {
     return res.status(500).json({ message: "Server error removing item" });
   }
 };
-const decreaseQuantity = async (req, res) => {
+
+export const decreaseQuantity = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const userId = req.user._id;
+    const userId = req.user?._id;
     const productId = req.params.productId;
 
     let cart = await Cart.findOne({ user: userId });
@@ -96,4 +100,3 @@ const decreaseQuantity = async (req, res) => {
     return res.status(500).json({ message: "Server error decreasing item" });
   }
 };
-module.exports = { addToCart, getCart, removeFromCart, decreaseQuantity };
