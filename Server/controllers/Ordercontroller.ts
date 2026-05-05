@@ -1,12 +1,13 @@
-const Order = require('../models/Order');
-const Cart = require('../models/Cart');
-const Product = require('../models/Product');
+import { Response } from "express";
 import { AuthRequest } from "../middleware/authMiddleware";
+import Order from "../models/Order";
+import Product from "../models/Product";
+import Cart from "../models/Cart";
 
-const createOrder = async (req: AuthRequest, res: Response) => {
+export const createOrder = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { orderItems, shippingAddress, paymentResult, itemsPrice, totalPrice } = req.body;
-    const userId = req.user._id;
+    const userId = req.user?._id;
 
     if (orderItems && orderItems.length === 0) {
       return res.status(400).json({ message: 'No order items' });
@@ -33,18 +34,18 @@ const createOrder = async (req: AuthRequest, res: Response) => {
     return res.status(500).json({ message: "Server error creating order" });
   }
 };
-const getMyOrders = async (req, res) => {
+export const getMyOrders = async (req: AuthRequest, res: Response) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const orders = await Order.find({ user: req.user?._id }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     console.error("Fetch orders error:", error);
     res.status(500).json({ message: "Server error fetching orders" });
   }
 };
-const getSellerRevenue = async (req, res) => {
+export const getSellerRevenue = async (req: AuthRequest, res: Response) => {
   try {
-    const sellerProducts = await Product.find({ user: req.user._id }).select('_id');
+    const sellerProducts = await Product.find({ user: req.user?._id }).select('_id');
     const productIds = sellerProducts.map(p => p._id.toString());
     const allOrders = await Order.find({});
 
@@ -69,4 +70,3 @@ const getSellerRevenue = async (req, res) => {
     res.status(500).json({ message: "Server error calculating revenue" });
   }
 };
-module.exports = { createOrder, getMyOrders, getSellerRevenue };

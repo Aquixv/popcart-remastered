@@ -1,17 +1,17 @@
-const express = require('express');
+import express from 'express'
 const app = express();
-const cors = require('cors');
-require('dotenv').config(); 
-require('./connection');
-const path = require('path');
-const productRoutes = require('./routes/Productroutes');
-const passport = require('passport'); 
+import cors from 'cors'
+import dotenv from 'dotenv'
+import './connection'
+import path from 'path';
+import productRoutes from './routes/Productroutes';
+import passport from 'passport'; 
 
 const PORT = process.env.port || 1500; 
 const authRoutes = require('./routes/routes');
 app.use(express.json());
 app.use(cors({
-  origin: [process.env.FRONTEND_URL, "https://popcart-seven.vercel.app"],
+  origin: [process.env.FRONTEND_URL as string, ""],
   credentials: true
 }));
 
