@@ -6,44 +6,37 @@ import Cart from "../models/Cart";
 
 export const createOrder = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    // We added paymentResult to the destructured body here!
     const { orderItems, shippingAddress, paymentMethod, itemsPrice, shippingPrice, totalPrice, paymentResult } = req.body;
 
     if (orderItems && orderItems.length === 0) {
       return res.status(400).json({ message: 'No order items' });
     }
-
-    // 1. Create the order AND mark it paid immediately!
     const order = new Order({
       user: req.user?._id,
       orderItems,
       shippingAddress,
       paymentMethod,
-      paymentResult, // Save the Paystack data sent from your frontend!
+      paymentResult,
       itemsPrice,
       shippingPrice,
       totalPrice,
-      isPaid: true,  // Automatically true because this only runs on Paystack success
+      isPaid: true,  
       paidAt: new Date(),
     });
 
     const createdOrder = await order.save();
-
-    // 2. The Stock & Sold Drain Loop
     for (const item of orderItems) {
       await Product.findByIdAndUpdate(
         item.product, 
         { 
           $inc: { 
             stock: -item.quantity,
-            sold: item.quantity // Updates the seller dashboard!
+            sold: item.quantity
           } 
         } 
       );
     }
 
-    // 3. Clear the Backend Cart
-    // Your frontend clears the local cart, but we need to empty the DB cart too!
     await Cart.findOneAndUpdate(
       { user: req.user?._id },
       { $set: { items: [] } } 

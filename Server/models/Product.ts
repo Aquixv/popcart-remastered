@@ -19,6 +19,7 @@ export interface IProduct extends Document {
   reviews: IReview[];
   rating: number;
   numReviews: number;
+  sold:number
 }
 
 const reviewSchema = new Schema<IReview>(
@@ -82,6 +83,11 @@ const productSchema = new Schema<IProduct>(
       required: true,
       default: 0,
     },
+    sold: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
     discountPercentage: {
       type: Number,
       default: 0,

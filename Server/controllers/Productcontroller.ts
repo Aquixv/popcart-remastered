@@ -202,3 +202,26 @@ export const getAdminProducts = async (req: Request, res: Response): Promise<any
     return res.status(500).json({ message: "Server error fetching global inventory" });
   }
 };
+export const updateProductStock = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const { stock } = req.body;
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (product.user?.toString() !== req.user?._id?.toString() && req.user?.role !== 'admin') {
+      return res.status(403).json({ message: "You can only update your own products!" });
+    }
+
+    product.stock = Number(stock);
+    const updatedProduct = await product.save();
+    
+    return res.json(updatedProduct);
+
+  } catch (error) {
+    console.error("Stock update error:", error);
+    return res.status(500).json({ message: "Server error updating stock" });
+  }
+};

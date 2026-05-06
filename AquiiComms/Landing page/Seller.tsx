@@ -24,6 +24,42 @@ const Seller = () => {
   const [revenueData, setRevenueData] = useState({ totalRevenue: 0, totalItemsSold: 0 });
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
+  const handleUpdateStock = async (productId: string, currentStock: number) => {
+  const stockStr = window.prompt("Update Stock Quantity:", currentStock.toString());
+  
+  if (stockStr === null || stockStr.trim() === "") return; 
+
+  const updatedStock = parseInt(stockStr);
+
+  if (isNaN(updatedStock) || updatedStock < 0) {
+    alert("Please enter a valid number!");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/products/${productId}/stock`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json', 
+        Authorization: `Bearer ${userInfo?.token}` 
+      },
+      body: JSON.stringify({ stock: updatedStock })
+    });
+
+    if (response.ok) {
+      setMyProducts(myProducts.map(p => 
+        p._id === productId ? { ...p, stock: updatedStock } : p
+      ));
+      alert("✅ Stock Updated!");
+    } else {
+      const data = await response.json();
+      alert(data.message || "Failed to update stock");
+    }
+  } catch (error) {
+    console.error("Update stock error:", error);
+    alert("Server error while updating stock.");
+  }
+};
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;;
   
   const handleUpgradeToSeller = async () => {
@@ -245,10 +281,19 @@ useEffect(() => {
                         style={{ padding: '5px', background: '#ffebee', color: '#d32f2f', border: '1px solid #ffcdd2', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', marginBottom: '10px' }}
                       >Delete Product
                       </button>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto', fontSize: '0.85rem', color: '#666' }}>
-                        <span>Stock: {product.stock}</span>
-                        <span>Sold: {product.sold || 0}</span>
-                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', fontSize: '0.85rem', color: '#666' }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+    <span>Stock: {product.stock}</span>
+    <button 
+      onClick={() => handleUpdateStock(product._id, product.stock)}
+      style={{ background: 'transparent', border: 'none', color: '#1976d2', cursor: 'pointer', fontSize: '1rem', padding: '0 5px' }}
+      title="Edit Stock"
+    >
+      ✎
+    </button>
+  </div>
+  <span>Sold: {product.sold || 0}</span>
+</div>
                     </div>
                   ))}
                 </div>

@@ -8,7 +8,7 @@ import { protect, isAdmin, isSeller, AuthRequest } from '../middleware/authMiddl
 
 import { registerUser, loginUser, forgotPassword, resetPassword, upgradeToSeller } from '../controllers/Authcontroller';
 import { addToCart, getCart, removeFromCart, decreaseQuantity } from '../controllers/Cartcontroller';
-import { getProducts, getProductsByCategory, getSingleProduct, createProduct } from '../controllers/Productcontroller';
+import { getProducts, getProductsByCategory, getSingleProduct, createProduct, updateProductStock } from '../controllers/Productcontroller';
 import { createOrder, getMyOrders, getSellerRevenue } from '../controllers/Ordercontroller';
 import { toggleFavorite, getFavorites, getAllUsers, updateUserRole } from '../controllers/Usercontroller';
 
@@ -127,6 +127,7 @@ router.post('/favorites/:productId', protect as any, toggleFavorite as any);
 router.put('/profile/upgrade', protect as any, upgradeToSeller as any);
 router.get('/orders/revenue', protect as any, isSeller as any, getSellerRevenue as any);
 router.get('/users', protect as any, isAdmin as any, getAllUsers as any);
+router.put('/products/:id/stock', protect as any, updateProductStock as any);
 router.put('/users/:id/role', protect as any, isAdmin as any, updateUserRole as any);
 
 export default router;

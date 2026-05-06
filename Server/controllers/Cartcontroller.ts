@@ -1,13 +1,32 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware'; 
 import Cart from '../models/Cart'; 
+import Product from '../models/Product';
 
 export const addToCart = async (req: AuthRequest, res: Response): Promise<any> => {
   const { productId, quantity }: { productId: string; quantity: number } = req.body; 
   const userId = req.user?._id;
 
   try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
     let cart = await Cart.findOne({ user: userId });
+
+    let existingQuantity = 0;
+    if (cart) {
+      const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+      if (itemIndex > -1) {
+        existingQuantity = cart.items[itemIndex].quantity;
+      }
+    }
+    if (existingQuantity + quantity > product.stock) {
+      return res.status(400).json({ 
+        message: `Cannot add to cart. Only ${product.stock} left in stock.` 
+      });
+    }
 
     if (cart) {
       let itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
