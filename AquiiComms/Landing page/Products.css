@@ -75,6 +75,17 @@ text-decoration: none;
   cursor: pointer;
   transition: all 0.3s;
 }
+.No {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid grey;
+  background: transparent;
+  border-radius: 25px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
 
 .add-to-cart-btn:hover {
   background: #222;

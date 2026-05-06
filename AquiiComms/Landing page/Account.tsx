@@ -173,7 +173,7 @@ const Account = () => {
                     <div key={order._id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '20px', background: '#fafafa' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ddd', paddingBottom: '10px', marginBottom: '15px' }}>
                         <div>
-                          <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Order #{order._id.substring(order._id.length - 8).toUpperCase()}</span>
+                          <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Order ID:{order._id.substring(order._id.length - 8).toUpperCase()}</span>
                           <span style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
                             {new Date(order.createdAt).toLocaleDateString()}
                           </span>

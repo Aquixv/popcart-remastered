@@ -127,7 +127,13 @@ const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
       </Link>
 
       <div style={{ padding: '0 20px 20px 20px', marginTop: 'auto' }}>
-        <button className="add-to-cart-btn" onClick={handleAddToCart} style={{ width: '100%' }}>Add to Cart</button>
+        {product.stock > 0 ? (
+<button className="add-to-cart-btn" onClick={handleAddToCart} style={{ width: '100%' }}>Add to Cart</button>
+) : (
+  <button disabled className="bg-gray-400 cursor-not-allowed No">
+    Out of Stock
+  </button>
+)}
       </div>
     </div>
   );

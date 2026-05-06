@@ -5,10 +5,12 @@ import dotenv from 'dotenv'
 import './connection'
 import path from 'path';
 import productRoutes from './routes/Productroutes';
+import authRoutes from './routes/routes'
 import passport from 'passport'; 
+import configurePassport from './config/Passport';
 
 const PORT = process.env.port || 1500; 
-const authRoutes = require('./routes/routes');
+
 app.use(express.json());
 app.use(cors({
   origin: [process.env.FRONTEND_URL as string, ""],
@@ -21,7 +23,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 
 
-require('./config/Passport')(passport); 
+configurePassport(passport);
 app.use(passport.initialize());
 
 app.use('/api/users/auth', authRoutes);

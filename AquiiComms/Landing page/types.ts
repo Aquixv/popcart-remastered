@@ -7,6 +7,11 @@ export type Product = {
   description: string;
   rating: number;
   stock: number;
+  brand?: string; 
+  user?: UserProfile | null;
+  reviews?: Review[];
+  category:string;
+  sold:number
 };
 export type UserRole = 'customer' | 'seller' | 'admin';
 
@@ -16,11 +21,12 @@ export type UserProfile = {
   role: UserRole;
 };
 export type UserInfo = {
-  token: string;
-  avatar?: string;
+  _id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: string;       // Usually 'user' or 'seller' or 'admin'
+  token: string;
+  avatar?: string;    // Optional because some users might not upload one
 };
 export type OrderItem = {
   name: string;
@@ -57,4 +63,23 @@ export type CartContextType = {
   removeFromCart: (productId: string) => Promise<void>;
   fetchCart: () => Promise<void>;
   decreaseQuantity: (productId: string) => Promise<void>;
+};
+export type AuthContextType = {
+  user: UserInfo | null;
+  login: (userData: UserInfo) => void;
+  logout: () => void;
+};
+export type FavoritesContextType = {
+  favorites: string[]; 
+  toggleFavorite: (productId: string) => Promise<void>;
+  fetchFavorites: () => Promise<void>;
+};
+export type Review = {
+  _id?: string;
+  name?: string;
+  reviewerName?: string;
+  rating: number;
+  comment: string;
+  createdAt?: string;
+  date?: string;
 };

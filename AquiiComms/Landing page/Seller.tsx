@@ -247,7 +247,7 @@ useEffect(() => {
                       </button>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto', fontSize: '0.85rem', color: '#666' }}>
                         <span>Stock: {product.stock}</span>
-                        <span>Sold: 0</span>
+                        <span>Sold: {product.sold || 0}</span>
                       </div>
                     </div>
                   ))}

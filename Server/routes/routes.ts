@@ -1,4 +1,5 @@
 import express, { Response } from 'express';
+const router = express.Router();
 import passport from 'passport';
 import User from '../models/Schema';
 import { upload, cloudinary } from '../cloudinary';
@@ -11,7 +12,7 @@ import { getProducts, getProductsByCategory, getSingleProduct, createProduct } f
 import { createOrder, getMyOrders, getSellerRevenue } from '../controllers/Ordercontroller';
 import { toggleFavorite, getFavorites, getAllUsers, updateUserRole } from '../controllers/Usercontroller';
 
-const router = express.Router();
+
 
 router.post('/register', registerUser as any);
 router.post('/login', loginUser as any);

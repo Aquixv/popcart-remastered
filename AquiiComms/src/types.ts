@@ -11,6 +11,7 @@ export type Product = {
   user?: UserProfile | null;
   reviews?: Review[];
   category:string;
+  sold:number;
 };
 export type UserRole = 'customer' | 'seller' | 'admin';
 
@@ -20,8 +21,12 @@ export type UserProfile = {
   role: UserRole;
 };
 export type UserInfo = {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;       // Usually 'user' or 'seller' or 'admin'
   token: string;
-  avatar?: string;
+  avatar?: string;    // Optional because some users might not upload one
 };
 export type OrderItem = {
   name: string;
