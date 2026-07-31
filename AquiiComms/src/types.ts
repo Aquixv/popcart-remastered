@@ -24,9 +24,9 @@ export type UserInfo = {
   _id: string;
   name: string;
   email: string;
-  role: string;       // Usually 'user' or 'seller' or 'admin'
+  role: string;     
   token: string;
-  avatar?: string;    // Optional because some users might not upload one
+  avatar?: string;  
 };
 export type OrderItem = {
   name: string;
