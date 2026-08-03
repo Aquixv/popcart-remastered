@@ -3,11 +3,11 @@ import { cloudinary } from "../cloudinary";
 import { AuthRequest } from "../middleware/authMiddleware";
 import Product from "../models/Product";
 
-export const getProducts = async (req: Request, res: Response): Promise<any> => {
+export const getProducts = async (_: any, args: { limit?: number, skip?: number, keyword?: string }) => {
   try {
-    const limit = req.query.limit !== undefined ? parseInt(req.query.limit as string) : 30;
-    const skip = parseInt(req.query.skip as string) || 0;
-    const keyword = req.query.keyword as string;
+    const limit = args.limit !== undefined ? args.limit : 30;
+    const skip = args.skip || 0;
+    const keyword = args.keyword;
 
     const searchFilter = keyword
       ? { title: { $regex: keyword, $options: 'i' } }
@@ -19,23 +19,23 @@ export const getProducts = async (req: Request, res: Response): Promise<any> => 
                                   
     const total = await Product.countDocuments({ ...searchFilter });
       
-    return res.status(200).json({ 
+    return { 
       products,
       total,
       skip,
       limit
-    }); 
+    }; 
   } catch (error) {
     console.error("Error fetching products:", error);
-    return res.status(500).json({ message: "Server error fetching products" });
+    throw new Error("Server error fetching products");
   }
 };
 
-export const getProductsByCategory = async (req: Request, res: Response): Promise<any> => {
+export const getProductsByCategory = async(_: any, args: {limit?: number, skip?: number, categoryName?:string }) => {
   try {
-    const categoryName = req.params.category;
-    const limit = parseInt(req.query.limit as string) || 30;
-    const skip = parseInt(req.query.skip as string) || 0;
+    const categoryName = args.categoryName;
+    const limit = args.limit !== undefined ? args.limit : 30;
+    const skip = args.skip || 0 ; 
 
     const products = await Product.find({ category: categoryName })
                                   .skip(skip)
@@ -43,72 +43,146 @@ export const getProductsByCategory = async (req: Request, res: Response): Promis
 
     const total = await Product.countDocuments({ category: categoryName });
     
-    return res.status(200).json({ 
+    return{ 
       products,
       total,
       skip,
       limit
-    });
+    };
   } catch (error) {
     console.error("Error fetching category:", error);
-    return res.status(500).json({ message: "Server error fetching category" });
+    throw new Error ("Server error fetching category" );
   }
 };
 
-export const createProductReview = async (req: AuthRequest, res: Response): Promise<any> => {
+export const createProductReview = async (_: any, args: { productId: string, rating: number, comment: string }, context: any) => {
   try {
-    const { rating, comment } = req.body;
-    const product = await Product.findById(req.params.id);
+    if (!context.user) {
+      throw new Error("You must be logged in to leave a review.");
+    }
+
+    const { productId, rating, comment } = args;
+
+    const product = await Product.findById(productId);
 
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      throw new Error("Product not found");
     }
 
     const alreadyReviewed = product.reviews.find(
-      (r) => r.user?.toString() === req.user?._id?.toString()
+      (r: any) => r.user?.toString() === context.user._id.toString()
     );
 
     if (alreadyReviewed) {
-      return res.status(400).json({ message: "You already reviewed this product." });
+      throw new Error("You already reviewed this product.");
     }
 
     const review = {
-      name: req.user?.name, 
+      name: context.user.name,
       rating: Number(rating),
       comment,
-      user: req.user?._id,
+      user: context.user._id,
     };
     
     product.reviews.push(review as any);
     
     product.numReviews = product.reviews.length;
-    product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
+    product.rating = product.reviews.reduce((acc: number, item: any) => item.rating + acc, 0) / product.reviews.length;
 
     await product.save();
     
-    return res.status(201).json({ message: "Review added successfully!" });
+    return "Review added successfully!"; 
 
   } catch (error) {
     console.error("Review Error:", error);
-    return res.status(500).json({ message: "Server error saving review" });
+    throw new Error("Server error saving review");
   }
-};
-
-export const getSingleProduct = async (req: Request, res: Response): Promise<any> => {
+}; 
+export const getSingleProduct = async(_: any, args: { productId: string }) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    const product = await Product.findById(args.productId);
     
-    return res.status(200).json(product);
+    if (!product) throw new Error ("Product not found");
+    return product;
   } catch (error) {
     console.error("Error fetching single product:", error);
-    return res.status(500).json({ message: "Server error fetching product" });
+    throw new Error("Server error fetching product");
   }
 };
 
-export const createProduct = async (req: AuthRequest, res: Response): Promise<any> => {
+export const getSellerProducts = async (_: any, __: any, context: any) => {
+  try {
+    if (!context.user) throw new Error("Not authenticated");
+    
+    const products = await Product.find({ user: context.user._id }).sort({ createdAt: -1 }); 
+    return products;
+  } catch (error) {
+    console.error("Fetch seller products error:", error);
+    throw new Error("Server error fetching products");
+  }
+};
+
+export const deleteProduct = async (_: any, args: { productId: string }, context: any) => {
+  try {
+    if (!context.user) throw new Error("Not authenticated");
+
+    const product = await Product.findById(args.productId);
+    if (!product) throw new Error("Product not found");
+    
+    if (product.user?.toString() !== context.user._id.toString() && context.user.role !== 'admin') {
+      throw new Error("You can only delete your own products!");
+    }
+    
+    await Product.findByIdAndDelete(args.productId);
+    return "Product removed successfully";
+  } catch (error) {
+    console.error("Delete error:", error);
+    throw new Error("Server error deleting product");
+  }
+};
+
+export const getAdminProducts = async (_: any, __: any, context: any) => {
+  try {
+    if (!context.user || context.user.role !== 'admin') {
+      throw new Error("Not authorized as an admin");
+    }
+
+    const products = await Product.find({})
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 });
+      
+    return products;
+  } catch (error) {
+    console.error("Fetch all products error:", error);
+    throw new Error("Server error fetching global inventory");
+  }
+};
+
+export const updateProductStock = async (_: any, args: { productId: string, stock: number }, context: any) => {
+  try {
+    if (!context.user) throw new Error("Not authenticated");
+
+    const { productId, stock } = args;
+    const product = await Product.findById(productId);
+
+    if (!product) throw new Error("Product not found");
+
+    if (product.user?.toString() !== context.user._id.toString() && context.user.role !== 'admin') {
+      throw new Error("You can only update your own products!");
+    }
+
+    product.stock = Number(stock);
+    const updatedProduct = await product.save();
+    
+    return updatedProduct;
+  } catch (error) {
+    console.error("Stock update error:", error);
+    throw new Error("Server error updating stock");
+  }
+};
+
+
+export const createProduct = async (req: Request | any, res: Response): Promise<any> => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "Product image is required" });
@@ -135,7 +209,7 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<an
 
     console.log("Uploading product image to Cloudinary...");
     const result = await streamUpload(req.file);
-    console.log("✅ Cloudinary Success:", result.secure_url);
+    console.log("👍 Cloudinary Success:", result.secure_url);
 
     const product = new Product({
       user: req.user?._id,
@@ -157,71 +231,5 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<an
   } catch (error) {
     console.error("🚨 Create Product Error:", error);
     return res.status(500).json({ message: "Error creating product" });
-  }
-};
-
-export const getSellerProducts = async (req: AuthRequest, res: Response): Promise<any> => {
-  try {
-    const products = await Product.find({ user: req.user?._id }).sort({ createdAt: -1 }); 
-    return res.json(products);
-  } catch (error) {
-    console.error("Fetch seller products error:", error);
-    return res.status(500).json({ message: "Server error fetching products" });
-  }
-};
-
-export const deleteProduct = async (req: AuthRequest, res: Response): Promise<any> => {
-  try {
-    const product = await Product.findById(req.params.id);
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    if (product.user?.toString() !== req.user?._id?.toString() && req.user?.role !== 'admin') {
-      return res.status(403).json({ message: "You can only delete your own products!" });
-    }
-    
-    await Product.findByIdAndDelete(req.params.id);
-    return res.json({ message: "Product removed successfully" });
-
-  } catch (error) {
-    console.error("Delete error:", error);
-    return res.status(500).json({ message: "Server error deleting product" });
-  }
-};
-
-export const getAdminProducts = async (req: Request, res: Response): Promise<any> => {
-  try {
-    const products = await Product.find({})
-      .populate('user', 'name email')
-      .sort({ createdAt: -1 });
-      
-    return res.json(products);
-  } catch (error) {
-    console.error("Fetch all products error:", error);
-    return res.status(500).json({ message: "Server error fetching global inventory" });
-  }
-};
-export const updateProductStock = async (req: AuthRequest, res: Response): Promise<any> => {
-  try {
-    const { stock } = req.body;
-    const product = await Product.findById(req.params.id);
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    if (product.user?.toString() !== req.user?._id?.toString() && req.user?.role !== 'admin') {
-      return res.status(403).json({ message: "You can only update your own products!" });
-    }
-
-    product.stock = Number(stock);
-    const updatedProduct = await product.save();
-    
-    return res.json(updatedProduct);
-
-  } catch (error) {
-    console.error("Stock update error:", error);
-    return res.status(500).json({ message: "Server error updating stock" });
   }
 };

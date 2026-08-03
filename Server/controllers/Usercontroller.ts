@@ -2,28 +2,32 @@ import { Request, Response } from 'express';
 import User from '../models/Schema';
 import { AuthRequest } from '../middleware/authMiddleware';
 
-export const toggleFavorite = async (req: AuthRequest, res: Response): Promise<any> => {
+export const toggleFavorite = async (_: any, args: { productId: any; }, context: any) => {
   try {
-    const userId = req.user?._id;
-    const productId = req.params.productId as any; 
+    const userId = context.user?._id;
+    if (!userId) {
+        throw new Error("You must be logged in to favorite an item.");
+    }
+
+    const productId = args.productId; 
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) throw new Error("User not found");
 
-    const isFavorited = user.favorites.some(fav => fav.toString() === productId.toString());
+    const isFavorited = user.favorites.some((fav: any) => fav.toString() === productId.toString());
 
     if (isFavorited) {
-      user.favorites = user.favorites.filter(fav => fav.toString() !== productId.toString());
+      user.favorites = user.favorites.filter((fav: any) => fav.toString() !== productId.toString());
     } else {
       user.favorites.push(productId);
     }
 
     await user.save();
-    return res.status(200).json(user.favorites);
+    return user.favorites;
 
   } catch (error) {
     console.error("Favorite toggle error:", error);
-    return res.status(500).json({ message: "Server error toggling favorite" });
+    throw new Error("Server error toggling favorite");
   }
 };
 
