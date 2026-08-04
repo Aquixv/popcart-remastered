@@ -1,35 +1,34 @@
-import { Response } from 'express';
-import { AuthRequest } from '../middleware/authMiddleware'; 
 import Cart from '../models/Cart'; 
 import Product from '../models/Product';
 
-export const addToCart = async (req: AuthRequest, res: Response): Promise<any> => {
-  const { productId, quantity }: { productId: string; quantity: number } = req.body; 
-  const userId = req.user?._id;
+export const addToCart = async (_: any, args: { productId: string; quantity: number }, context: any) => {
+  const { productId, quantity } = args; 
+  const userId = context.user?._id;
+
+  if (!userId) throw new Error("Not authenticated");
 
   try {
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      throw new Error("Product not found");
     }
 
     let cart = await Cart.findOne({ user: userId });
 
     let existingQuantity = 0;
     if (cart) {
-      const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+      const itemIndex = cart.items.findIndex((item: any) => item.product.toString() === productId);
       if (itemIndex > -1) {
         existingQuantity = cart.items[itemIndex].quantity;
       }
     }
+    
     if (existingQuantity + quantity > product.stock) {
-      return res.status(400).json({ 
-        message: `Cannot add to cart. Only ${product.stock} left in stock.` 
-      });
+      throw new Error(`Cannot add to cart. Only ${product.stock} left in stock.`);
     }
 
     if (cart) {
-      let itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+      let itemIndex = cart.items.findIndex((item: any) => item.product.toString() === productId);
 
       if (itemIndex > -1) {
         cart.items[itemIndex].quantity += quantity;
@@ -38,84 +37,91 @@ export const addToCart = async (req: AuthRequest, res: Response): Promise<any> =
       }
       
       cart = await cart.save();
-      return res.status(200).json(cart);
+      return cart;
 
     } else {
       const newCart = await Cart.create({
         user: userId,
         items: [{ product: productId, quantity }]
       });
-      return res.status(201).json(newCart);
+      return newCart;
     }
   } catch (error) {
     console.error("Add to cart error:", error);
-    return res.status(500).json({ message: "Server error adding to cart" });
+    throw new Error("Server error adding to cart");
   }
 };
 
-export const getCart = async (req: AuthRequest, res: Response): Promise<any> => {
+export const getCart = async (_: any, __: any, context: any) => {
   try {
-    const cart = await Cart.findOne({ user: req.user?._id })
-      .populate('items.product'); 
+    const userId = context.user?._id;
+    if (!userId) throw new Error("Not authenticated");
+
+    const cart = await Cart.findOne({ user: userId }).populate('items.product'); 
 
     if (!cart) {
-      return res.status(200).json({ items: [] }); 
+      return { items: [] }; 
     }
-    return res.status(200).json(cart);
+    return cart;
   } catch (error) {
     console.error("Get cart error:", error);
-    return res.status(500).json({ message: "Server error fetching cart" });
+    throw new Error("Server error fetching cart");
   }
 };
 
-export const removeFromCart = async (req: AuthRequest, res: Response): Promise<any> => {
+export const removeFromCart = async (_: any, args: { productId: string }, context: any) => {
   try {
-    const userId = req.user?._id;
-    const productId = req.params.productId; 
+    const userId = context.user?._id;
+    if (!userId) throw new Error("Not authenticated");
+    
+    const productId = args.productId; 
 
     let cart = await Cart.findOne({ user: userId });
     
     if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
+      throw new Error("Cart not found");
     }
 
-    cart.items = cart.items.filter(item => item.product.toString() !== productId);
+    cart.items = cart.items.filter((item: any) => item.product.toString() !== productId);
 
     await cart.save();
-    return res.status(200).json(cart);
+    return cart;
 
   } catch (error) {
     console.error("Remove from cart error:", error);
-    return res.status(500).json({ message: "Server error removing item" });
+    throw new Error("Server error removing item");
   }
 };
 
-export const decreaseQuantity = async (req: AuthRequest, res: Response): Promise<any> => {
+export const decreaseQuantity = async (_: any, args: { productId: string }, context: any) => {
   try {
-    const userId = req.user?._id;
-    const productId = req.params.productId;
+    const userId = context.user?._id;
+    if (!userId) throw new Error("Not authenticated");
+    
+    const productId = args.productId;
 
     let cart = await Cart.findOne({ user: userId });
     
     if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
+      throw new Error("Cart not found");
     }
 
-    let itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+    let itemIndex = cart.items.findIndex((item: any) => item.product.toString() === productId);
 
     if (itemIndex > -1) {
       if (cart.items[itemIndex].quantity > 1) {
         cart.items[itemIndex].quantity -= 1;
       } else {
-        cart.items = cart.items.filter(item => item.product.toString() !== productId);
+        cart.items = cart.items.filter((item: any) => item.product.toString() !== productId);
       }
       
       await cart.save();
-      return res.status(200).json(cart);
+      return cart;
     }
 
+    return cart;
   } catch (error) {
     console.error("Decrease quantity error:", error);
-    return res.status(500).json({ message: "Server error decreasing item" });
+    throw new Error("Server error decreasing item");
   }
 };
