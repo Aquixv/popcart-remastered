@@ -31,46 +31,59 @@ export const toggleFavorite = async (_: any, args: { productId: any; }, context:
   }
 };
 
-export const getFavorites = async (req: AuthRequest, res: Response): Promise<any> => {
+export const getFavorites = async (_: any, __: any, context: any) => {
   try {
-    const user = await User.findById(req.user?._id).populate('favorites');
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!context.user) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await User.findById(context.user._id).populate('favorites');
     
-    return res.status(200).json(user.favorites);
+    if (!user) throw new Error("User not found");
+    return user.favorites;
+    
   } catch (error) {
-    return res.status(500).json({ message: "Server error fetching favorites" });
+    console.error("Fetch favorites error:", error);
+    throw new Error("Server error fetching favorites");
   }
 };
 
-export const getAllUsers = async (req: Request, res: Response): Promise<any> => {
+export const getAllUsers = async (_:any, __: any, context:any) => {
   try {
+    if (!context.user){
+    throw new Error("Not Authentified");
+    }
     const users = await User.find({}).select('-password');
-    return res.json(users);
+    return (users);
   } catch (error) {
     console.error("Fetch all users error:", error);
-    return res.status(500).json({ message: "Server error fetching users" });
+    throw new Error("Server error in fetching new users");
   }
 };
 
-export const updateUserRole = async (req: Request, res: Response): Promise<any> => {
+export const updateUserRole = async (_:any, args: {role:any; id:string}, context:any) => {
   try {
-    const user = await User.findById(req.params.id);
+    if (!context.user){
+    throw new Error("Not Authentified");
+    }
+    
+    const user = await User.findById(args.id);
 
     if (user) {
-      user.role = req.body.role || user.role;
+      user.role = args.role || user.role;
       
       const updatedUser = await user.save();
       
-      return res.json({
+      return({
         _id: updatedUser._id,
         name: updatedUser.name,
         role: updatedUser.role,
       });
     } else {
-      return res.status(404).json({ message: "User not found" });
+      throw new Error("User not found");
     }
   } catch (error) {
     console.error("Update role error:", error);
-    return res.status(500).json({ message: "Server error updating role" });
+    throw new Error("Server error updating role");
   }
 };
