@@ -1,18 +1,19 @@
-import { Response } from "express";
-import { AuthRequest } from "../middleware/authMiddleware";
 import Order from "../models/Order";
 import Product from "../models/Product";
 import Cart from "../models/Cart";
 
-export const createOrder = async (req: AuthRequest, res: Response): Promise<any> => {
+export const createOrder = async (_: any, args: any, context: any) => {
   try {
-    const { orderItems, shippingAddress, paymentMethod, itemsPrice, shippingPrice, totalPrice, paymentResult } = req.body;
+    if (!context.user) throw new Error("Not authenticated");
 
-    if (orderItems && orderItems.length === 0) {
-      return res.status(400).json({ message: 'No order items' });
+    const { orderItems, shippingAddress, paymentMethod, itemsPrice, shippingPrice, totalPrice, paymentResult } = args;
+
+    if (!orderItems || orderItems.length === 0) {
+      throw new Error('No order items');
     }
+    
     const order = new Order({
-      user: req.user?._id,
+      user: context.user._id,
       orderItems,
       shippingAddress,
       paymentMethod,
@@ -25,6 +26,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<any>
     });
 
     const createdOrder = await order.save();
+    
     for (const item of orderItems) {
       await Product.findByIdAndUpdate(
         item.product, 
@@ -37,39 +39,44 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<any>
       );
     }
 
+
     await Cart.findOneAndUpdate(
-      { user: req.user?._id },
+      { user: context.user._id },
       { $set: { items: [] } } 
     );
-
-    return res.status(201).json(createdOrder);
+    return createdOrder;
 
   } catch (error) {
     console.error("Create order error:", error);
-    return res.status(500).json({ message: "Server error creating order" });
+    throw new Error("Server error creating order");
   }
 };
-export const getMyOrders = async (req: AuthRequest, res: Response) => {
+
+export const getMyOrders = async (_: any, __: any, context: any) => {
   try {
-    const orders = await Order.find({ user: req.user?._id }).sort({ createdAt: -1 });
-    res.json(orders);
+    if (!context.user) throw new Error("Not authenticated");
+    const orders = await Order.find({ user: context.user._id }).sort({ createdAt: -1 });
+    return orders;
+    
   } catch (error) {
     console.error("Fetch orders error:", error);
-    res.status(500).json({ message: "Server error fetching orders" });
+    throw new Error("Server error fetching orders");
   }
 };
-export const getSellerRevenue = async (req: AuthRequest, res: Response) => {
+
+export const getSellerRevenue = async (_: any, __: any, context: any) => {
   try {
-    const sellerProducts = await Product.find({ user: req.user?._id }).select('_id');
-    const productIds = sellerProducts.map(p => p._id.toString());
+    if (!context.user) throw new Error("Not authenticated");
+    const sellerProducts = await Product.find({ user: context.user._id }).select('_id');
+    const productIds = sellerProducts.map((p: any) => p._id.toString());
     const allOrders = await Order.find({});
 
     let totalRevenue = 0;
     let totalItemsSold = 0;
 
-    allOrders.forEach(order => {
+    allOrders.forEach((order: any) => {
       if (order.isPaid) {
-        order.orderItems.forEach(item => {
+        order.orderItems.forEach((item: any) => {
           if (productIds.includes(item.product.toString())) {
             totalRevenue += (item.price * item.quantity);
             totalItemsSold += item.quantity;
@@ -77,11 +84,10 @@ export const getSellerRevenue = async (req: AuthRequest, res: Response) => {
         });
       }
     });
-
-    res.json({ totalRevenue, totalItemsSold });
+    return { totalRevenue, totalItemsSold };
 
   } catch (error) {
     console.error("Revenue calculation error:", error);
-    res.status(500).json({ message: "Server error calculating revenue" });
+    throw new Error("Server error calculating revenue");
   }
 };

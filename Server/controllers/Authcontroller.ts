@@ -1,9 +1,7 @@
-import { Request, Response } from 'express';
 import crypto from 'crypto';
 import User from '../models/Schema';
 import generateToken from '../config/GenerateToken'; 
 import sendEmail from '../util/email';
-import { AuthRequest } from '../middleware/authMiddleware'; 
 
 export const forgotPassword = async (_:any, args:{email:string, }, context:any) => {
   try {
