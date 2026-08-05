@@ -5,11 +5,11 @@ import generateToken from '../config/GenerateToken';
 import sendEmail from '../util/email';
 import { AuthRequest } from '../middleware/authMiddleware'; 
 
-export const forgotPassword = async (req: Request, res: Response): Promise<any> => {
+export const forgotPassword = async (_:any, args:{email:string, }, context:any) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: args.email });
     if (!user) {
-      return res.status(404).json({ message: "There is no user with that email." });
+      throw new Error("There is no user with that email.");
     }
 
     const resetToken = crypto.randomBytes(20).toString('hex');
@@ -31,51 +31,51 @@ export const forgotPassword = async (req: Request, res: Response): Promise<any> 
       html: htmlMessage
     });
 
-    return res.status(200).json({ message: "Email sent successfully!" });
+    return("Email sent successfully!");
 
   } catch (error) {
     console.error(error);
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: args.email });
     if (user) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
       await user.save();
     }
-    return res.status(500).json({ message: "Email could not be sent" });
+    return ("Email could not be sent");
   }
 };
 
-export const resetPassword = async (req: Request, res: Response): Promise<any> => {
+export const resetPassword = async (_:any, __:any, args:{token:any, password:string}, context:any)=> {
   try {
     const user = await User.findOne({
-      resetPasswordToken: req.params.token,
+      resetPasswordToken: args.token,
       resetPasswordExpire: { $gt: new Date() } 
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid or expired token." });
+      throw new Error ("Invalid or expired token.");
     }
 
-    user.password = req.body.password;
+    user.password = args.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
 
-    return res.status(200).json({ message: "Password reset successful!" });
+    return("Password reset successful!");
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Server error resetting password." });
+    throw new Error("Server error resetting password.");
   }
 };
 
-export const registerUser = async (req: Request, res: Response): Promise<any> => {
+export const registerUser = async (_:any, __:any, args:{}, context:any) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = context.body;
     const userExists = await User.findOne({ email });
     
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return('User already exists');
     }
 
     const user = await User.create({
@@ -86,7 +86,7 @@ export const registerUser = async (req: Request, res: Response): Promise<any> =>
     });
     
     if (user) {
-      return res.status(201).json({
+      return({
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -94,20 +94,20 @@ export const registerUser = async (req: Request, res: Response): Promise<any> =>
         token: generateToken(user._id.toString())
       });
     } else {
-      return res.status(400).json({ message: 'Invalid user data' });
+    throw new Error('Invalid user data');
     }
   } catch (error: any) {
-    return res.status(500).json({ message: 'Server Error', error: error.message });
+    throw new Error('Server Error', error);
   }
 };
 
-export const loginUser = async (req: Request, res: Response): Promise<any> => {
+export const loginUser = async (_:any, __:any, args:{}, context:any) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = context.body;
     const user = await User.findOne({ email });
     
     if (user && (await user.matchPassword(password))) {
-      return res.json({
+      return({
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -116,23 +116,23 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
         avatar: user.avatar 
       });
     } else {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return ('Invalid email or password');
     }
   } catch (error: any) {
-    return res.status(500).json({ message: 'Server Error', error: error.message });
+    throw new Error('Server Error', error);
   }
 };
 
-export const upgradeToSeller = async (req: AuthRequest, res: Response): Promise<any> => {
+export const upgradeToSeller = async (_:any, __:any, args:{user:any}, context:any) => {
   try {
-    const user = await User.findById(req.user?._id);
+    const user = await User.findById(context.user?._id);
 
     if (user) {
       user.role = 'seller';
       const updatedUser = await user.save();
-      const token = req.headers.authorization?.split(' ')[1];
+      const token = context.headers.authorization?.split(' ')[1];
 
-      return res.json({
+      return({
         _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
@@ -141,10 +141,10 @@ export const upgradeToSeller = async (req: AuthRequest, res: Response): Promise<
         token: token,
       });
     } else {
-      return res.status(404).json({ message: 'User not found' });
+      throw new Error('User not found');
     }
   } catch (error) {
     console.error("Upgrade error:", error);
-    return res.status(500).json({ message: 'Server error during upgrade' });
+    throw new Error('Server error during upgrade');
   }
 };
