@@ -45,7 +45,7 @@ export const forgotPassword = async (_:any, args:{email:string, }, context:any) 
   }
 };
 
-export const resetPassword = async (_:any, __:any, args:{token:any, password:string}, context:any)=> {
+export const resetPassword = async (_:any, args:{token:any, password:string}, context:any)=> {
   try {
     const user = await User.findOne({
       resetPasswordToken: args.token,
@@ -69,13 +69,13 @@ export const resetPassword = async (_:any, __:any, args:{token:any, password:str
   }
 };
 
-export const registerUser = async (_:any, __:any, args:{}, context:any) => {
+export const registerUser = async (_:any, args:{name: string, email: string, password: string}, context:any) => {
   try {
-    const { name, email, password } = context.body;
+    const { name, email, password } = args;
     const userExists = await User.findOne({ email });
     
     if (userExists) {
-      return('User already exists');
+      throw new Error('User already exists');
     }
 
     const user = await User.create({
@@ -97,13 +97,13 @@ export const registerUser = async (_:any, __:any, args:{}, context:any) => {
     throw new Error('Invalid user data');
     }
   } catch (error: any) {
-    throw new Error('Server Error', error);
+    throw new Error(`Server Error: ${error.message}`);
   }
 };
 
-export const loginUser = async (_:any, __:any, args:{}, context:any) => {
+export const loginUser = async (_: any, args: { email: string, password: string }) => {
   try {
-    const { email, password } = context.body;
+    const { email, password } = args;
     const user = await User.findOne({ email });
     
     if (user && (await user.matchPassword(password))) {
@@ -119,18 +119,18 @@ export const loginUser = async (_:any, __:any, args:{}, context:any) => {
       return ('Invalid email or password');
     }
   } catch (error: any) {
-    throw new Error('Server Error', error);
+    throw new Error(`Server Error: ${error.message}`);
   }
 };
 
-export const upgradeToSeller = async (_:any, __:any, args:{user:any}, context:any) => {
+export const upgradeToSeller = async (_: any, __: any, context: any) => {
   try {
     const user = await User.findById(context.user?._id);
 
     if (user) {
       user.role = 'seller';
       const updatedUser = await user.save();
-      const token = context.headers.authorization?.split(' ')[1];
+      const newToken = generateToken(updatedUser._id.toString());
 
       return({
         _id: updatedUser._id,
@@ -138,7 +138,7 @@ export const upgradeToSeller = async (_:any, __:any, args:{user:any}, context:an
         email: updatedUser.email,
         role: updatedUser.role,
         avatar: updatedUser.avatar,
-        token: token,
+        token: newToken,
       });
     } else {
       throw new Error('User not found');
