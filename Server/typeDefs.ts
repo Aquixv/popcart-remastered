@@ -1,25 +1,24 @@
 export const typeDefs = `#graphql
-  type User {
-    _id: ID!
-    name: String!
-    email: String!
-    role: String
-  }
+type User {
+  _id: ID!
+  name: String!
+  email: String!
+  role: String!
+  avatar: String
+}
 
-  type Product {
-    _id: ID!
-    name: String!
-    description: String
-    price: Float!
-    category: String!
-    stock: Int!
-    imageUrl: String
-  }
-  type Query {
-    getAllProducts: [Product!]!
-    getCategory(categoryName: String!): [Product!]!
-    # getCart: Cart (We will add this later!)
-  }
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+type Mutation {
+  register(name: String!, email: String!, password: String!): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+  forgotPassword(email: String!): String!
+  resetPassword(token: String!, password: String!): String!
+  upgradeToSeller: User!
+}
 
   type Mutation {
     register(name: String!, email: String!, password: String!): User!
