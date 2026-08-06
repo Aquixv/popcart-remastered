@@ -11,12 +11,11 @@ import { getAdminProducts } from "../controllers/Productcontroller";
 
 
 router.get('/all', protect as any, isAdmin as any, getAdminProducts);
-router.get('/', getProducts);
+router.get('/', getProducts as any);
 router.get('/mine', protect as any, isSeller as any, getSellerProducts as any);
-router.get('/category/:category', getProductsByCategory);
-router.get('/:id', getSingleProduct);
+router.get('/category/:category', getProductsByCategory as any);
+router.get('/:id', getSingleProduct as any);
 router.post('/:id/reviews', protect as any, createProductReview as any);
-// router.post('/', protect, isSeller, createProduct);
 router.post('/', protect as any, isSeller as any, upload.single('image'), createProduct as any);
 router.delete('/:id', protect as any, isSeller as any, deleteProduct as any);
 

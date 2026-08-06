@@ -1,22 +1,24 @@
+import dotenv from 'dotenv';
+dotenv.config(); 
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import './connection'; // Still works perfectly
+import './connection'; 
 import path from 'path';
 import passport from 'passport'; 
 import configurePassport from './config/Passport';
-
+import router from './routes/routes';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
-import dns from "node:dns/promises";
-
-// We'll import these once you actually write them
-// import { typeDefs } from './schema/typeDefs'; 
-// import { resolvers } from './schema/resolvers'; 
-
-dns.setServers(["1.1.1.1", "8.8.8.8"]);
-dotenv.config();
-
+import dns from "node:dns";
+import { typeDefs } from './typeDefs';
+import { cloudinary } from './cloudinary';
+import mongoose from 'mongoose';
+dns.setDefaultResultOrder('ipv4first'); 
+mongoose.connect(process.env.URI as string, {
+  family: 4,
+})
+.then(() => console.log('Connected to MongoDB!'))
+.catch(err => console.error('MongoDB connection error:', err));
 const app = express();
 const PORT = process.env.port || 1500; 
 
@@ -52,10 +54,8 @@ const startApolloServer = async () => {
         })
     );
 
-    // 3. Keep a dedicated REST route for your Cloudinary/Multer uploads!
-    // import uploadRoutes from './routes/uploadRoutes';
-    // app.use('/api/upload', uploadRoutes);
-
+    
+    // app.use('/api/upload', cloudinary);
     app.get('/', (req, res) => res.send('API Live'));
     app.get('/health', (req, res) => res.status(200).send('Server is alive and kicking! 🚀'));
     
