@@ -56,14 +56,11 @@ export const typeDefs = `#graphql
     items: [CartItem!]!
   }
 
-  # NEW: Defines the items locked into a specific order
   type OrderItem {
     product: Product!
     quantity: Int!
     price: Float!
   }
-
-  # UPGRADED: Fully fleshed out Order type
   type Order {
     _id: ID!
     user: User! 
@@ -102,18 +99,15 @@ export const typeDefs = `#graphql
     resetPassword(token: String!, password: String!): String
     upgradeToSeller: User
 
-    # Seller Actions (NEW)
     createProduct(title: String!, price: Float!, description: String!, category: String!, stock: Int!, brand: String): Product
     updateProduct(productId: ID!, title: String, price: Float, description: String, category: String, stock: Int, brand: String): Product
     deleteProduct(productId: ID!): String
 
-    # User Actions
     createProductReview(productId: ID!, rating: Float!, comment: String!): String
     addToCart(productId: ID!, quantity: Int!): Cart
     removeFromCart(productId: ID!): Cart
     decreaseQuantity(productId: ID!): Cart
     
-    # Orders
     createOrder(
       orderItems: [OrderItemInput!]! # <-- Add this!
       shippingAddress: String!
