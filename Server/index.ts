@@ -2,17 +2,20 @@ import dotenv from 'dotenv';
 dotenv.config(); 
 import express from 'express';
 import cors from 'cors';
-import './connection'; 
+// import './connection'; 
 import path from 'path';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
 import dns from "node:dns";
 import { resolvers } from './resolvers';
 import { typeDefs } from './typeDefs';
+import { setServers } from 'node:dns';
 import mongoose from 'mongoose';
 import User from './models/Schema';
 import * as jwt from 'jsonwebtoken'
 
+
+setServers(['8.8.8.8', '1.1.1.1']);
 dns.setDefaultResultOrder('ipv4first'); 
 mongoose.connect(process.env.URI as string, {
   family: 4,
@@ -67,8 +70,8 @@ const startApolloServer = async () => {
     app.get('/health', (req, res) => res.status(200).send('Server is alive and kicking! 🚀'));
     
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🚀 GraphQL ready at http://localhost:${PORT}/graphql`);
+      console.log(`Server running on port ${PORT}`);
+      console.log(`GraphQL ready at http://localhost:${PORT}/graphql`);
     });
 };
 
