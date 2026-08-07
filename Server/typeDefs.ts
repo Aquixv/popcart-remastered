@@ -92,7 +92,6 @@ export const typeDefs = `#graphql
   }
 
   type Mutation {
-    # Auth
     register(name: String!, email: String!, password: String!): AuthPayload
     login(email: String!, password: String!): AuthPayload
     forgotPassword(email: String!): String
@@ -109,12 +108,11 @@ export const typeDefs = `#graphql
     decreaseQuantity(productId: ID!): Cart
     
     createOrder(
-      orderItems: [OrderItemInput!]! # <-- Add this!
-      shippingAddress: String!
-      paymentMethod: String!
-      itemsPrice: Float!
-      shippingPrice: Float!
-      totalPrice: Float!
+      shippingAddress: String!, 
+      paymentMethod: String!, 
+      itemsPrice: Float!, 
+      shippingPrice: Float!, 
+      totalPrice: Float!, 
       paymentResult: String
     ): Order
   }

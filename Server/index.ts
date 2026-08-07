@@ -17,6 +17,7 @@ dns.setDefaultResultOrder('ipv4first');
 mongoose.connect(process.env.URI as string, {
   family: 4,
 })
+
 .then(() => console.log('Connected to MongoDB!'))
 .catch(err => console.error('MongoDB connection error:', err));
 const app = express();
