@@ -16,13 +16,13 @@ export const typeDefs = `#graphql
     avatar: String
   }
 
-  type Review {
-    _id: ID
-    name: String!
-    rating: Float!
-    comment: String!
-    user: User! # Changed from ID! to User!
-  }
+type Review {
+  _id: ID
+  name: String
+  rating: Float!
+  comment: String!
+  user: User   
+}
 
   type Product {
     _id: ID!
