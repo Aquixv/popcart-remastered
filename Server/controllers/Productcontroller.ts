@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { cloudinary } from "../cloudinary";
-import { AuthRequest } from "../middleware/authMiddleware";
 import Product from "../models/Product";
 
 export const getProducts = async (_: any, args: { limit?: number, skip?: number, keyword?: string }) => {

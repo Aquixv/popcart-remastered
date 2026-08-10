@@ -21,12 +21,6 @@ export const GET_PRODUCTS = gql `query Getproducts{
        name
         rating
         comment
-        user {
-          avatar
-          name
-          email
-          role
-        }
       }
     }
   }
@@ -54,15 +48,31 @@ getProductsByCategory(categoryName: $categoryName) {
       name
       rating
       comment
-      user {
-        _id
-        name
-        email
-        role
-        avatar
-      }
     }
   }
 }
 }
 `
+export const GET_SINGLE_PRODUCT = gql`
+query GetSingleProduct($productId: ID!) {
+  getSingleProduct(productId: $productId) {
+    _id
+    title
+    price
+    description
+    category
+    stock
+    thumbnail
+    brand
+    rating
+    numReviews
+    reviews {
+      _id
+      name
+      rating
+      comment
+    }
+  }
+}
+`
+export const GET_CART = gql ``
