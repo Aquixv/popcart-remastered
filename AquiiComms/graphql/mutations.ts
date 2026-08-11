@@ -65,3 +65,26 @@ mutation CreateProduct($title: String!, $price: Float!, $description: String!, $
     }
   }
 }`
+export const UPDATE_PRODUCT = gql`
+mutation UpdateProduct($productId: ID!, $title: String, $price: Float, $description: String, $category: String, $stock: Int) {
+  updateProduct(productId: $productId, title: $title, price: $price, description: $description, category: $category, stock: $stock) {
+    title
+    price
+    description
+    _id
+    stock
+    numReviews
+    thumbnail
+  }
+}`
+
+export const DELETE_PRODUCT = gql`
+mutation DeleteProduct($productId: ID!) {
+  deleteProduct(productId: $productId)
+}`
+
+export const CREATE_PRODUCT_REVIEW = gql`
+mutation DeleteProduct($productId: ID!) {
+  deleteProduct(productId: $productId)
+}`
+//Continue from here later 
