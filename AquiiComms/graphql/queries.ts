@@ -117,15 +117,6 @@ query GetMyOrders {
       product {
         title
         price
-        reviews {
-          name
-          rating
-          comment
-          user {
-            name
-            avatar
-          }
-        }
         description
         category
         stock
