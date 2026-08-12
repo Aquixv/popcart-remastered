@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';  
+import { useQuery, useMutation } from '@apollo/client/react';
+import { GET_ALL_USERS } from '../graphql/queries'; 
+import {UPGRADE_TO_SELLER} from '../graphql/mutations'
+
 import type { UserProfile, UserRole, UserInfo } from './types';
 type AdminUser = UserProfile & { _id: string };
 
@@ -9,10 +13,8 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState<'users' | 'inventory' | 'analytics'>('users');
-const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
 
-const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null') as UserInfo & { _id: string, role: string } | null;
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null') as UserInfo & { _id: string, role: string } | null;
  
   useEffect(() => {
     if (!userInfo || userInfo.role !== 'admin') {
@@ -21,65 +23,45 @@ const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null') as UserI
     }
   }, [navigate, userInfo]);
  
-  useEffect(() => {
-    if (activeTab === 'users' && userInfo?.role === 'admin') {
-      const fetchUsers = async () => {
-        try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/users`, {
-            headers: { Authorization: `Bearer ${userInfo.token}` }
-          });
-          const data = await response.json();
-          if (response.ok) {
-            setAllUsers(data);
-          }
-        } catch (error) {
-          console.error("Failed to fetch users", error);
-        } finally {
-          setLoadingUsers(false);
-        }
-      };
-      fetchUsers();
-    }
-  }, [activeTab, userInfo]);
+
+  // This automatically handles loading state, error state, and the data fetch!
+  // The 'skip' property acts like your old activeTab condition.
+  const { data, loading: loadingUsers } = useQuery<{ getAllUsers: AdminUser[] }>(GET_ALL_USERS, {
+    skip: activeTab !== 'users' || userInfo?.role !== 'admin',
+  });
+
+  const [updateRole] = useMutation(UPGRADE_TO_SELLER, {
+    // This tells Apollo to automatically refresh the user list after a successful change!
+    refetchQueries: [{ query: GET_ALL_USERS }], 
+  });
+
+  const allUsers: AdminUser[] = data?.getAllUsers || [];
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
-const handleRoleChange = async (userId: string, newRole:string) => {
+
+  const handleRoleChange = async (userId: string, newRole: string) => {
     if (!window.confirm(`Are you sure you want to change this user to ${newRole}?`)) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/users/${userId}/role`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo?.token}`
-        },
-        body: JSON.stringify({ role: newRole })
+      await updateRole({
+        variables: { id: userId, role: newRole }
       });
 
-      if (response.ok) {
-  setAllUsers(allUsers.map(user => 
-    // We explicitly cast newRole 'as UserRole' so TS knows it's safe!
-    user._id === userId ? { ...user, role: newRole as UserRole } : user
-  ));
-      } else {
-        const data = await response.json();
-        alert(data.message || "Failed to update role");
-      }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Role update error:", error);
-      alert("Something went wrong updating the database.");
+      alert(error.message || "Something went wrong updating the database.");
     }
   };
+
   return (
     <div style={{ minHeight: '80vh', padding: '60px 5%', backgroundColor: '#f8f9fa' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
         <div style={{ flex: '1', minWidth: '250px', background: '#fff', color: '#fff', borderRadius: '15px', padding: '20px', height: 'fit-content' }}>
           <div style={{ textAlign: 'center', paddingBottom: '20px', borderBottom: '1px solid #444', marginBottom: '20px' }}>
             <h2 style={{ margin: '0', color: '#e74c3c' }}>Admin Control Center</h2>
-            {/* <p style={{ color: '#aaa', fontSize: '0.9rem', margin: '5px 0 0' }}>Admin Control Center</p> */}
           </div>
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -92,6 +74,7 @@ const handleRoleChange = async (userId: string, newRole:string) => {
             </Link>
           </nav>
         </div>
+        
         <div style={{ flex: '3', minWidth: '300px', background: '#fff', borderRadius: '15px', padding: '40px' }}>
           
           {activeTab === 'users' && (
@@ -163,7 +146,6 @@ const handleRoleChange = async (userId: string, newRole:string) => {
             </div>
           )}
           {activeTab === 'analytics' && <h2>Platform Analytics Coming Soon...</h2>}
-
         </div>
       </div>
     </div>

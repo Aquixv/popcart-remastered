@@ -139,6 +139,28 @@ query GetMyOrders {
     deliveredAt
   }
 }`
+export const GET_ALL_USERS = gql`
+  query GetAllUsers {
+    getAllUsers {
+      _id
+      name
+      email
+      role
+    }
+  }
+`;
+
+export const GET_FAVORITES = gql`
+  query GetFavorites {
+    getFavorites {
+      _id
+      title
+      price
+      thumbnail
+      rating
+    }
+  }
+`;
 export const GET_SELLER_REVENUE = gql `
 query GetSellerRevenue {
   getSellerRevenue {

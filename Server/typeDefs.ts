@@ -89,6 +89,8 @@ type Review {
     getCart: Cart
     getMyOrders: [Order!]
     getSellerRevenue: RevenueStats
+    getAllUsers: [User!]
+  getFavorites: [Product!]
   }
 
   type Mutation {
@@ -97,6 +99,9 @@ type Review {
     forgotPassword(email: String!): String
     resetPassword(token: String!, password: String!): String
     upgradeToSeller: User
+
+    updateUserRole(id: ID!, role: String!): User
+  toggleFavorite(productId: ID!): [String]
 
     createProduct(title: String!, price: Float!, description: String!, category: String!, stock: Int!, brand: String): Product
     updateProduct(productId: ID!, title: String, price: Float, description: String, category: String, stock: Int, brand: String): Product

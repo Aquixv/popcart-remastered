@@ -191,3 +191,18 @@ mutation CreateOrder($shippingAddress: String!, $paymentMethod: String!, $itemsP
     }
   }
 }`
+export const UPDATE_USER_ROLE = gql`
+  mutation UpdateUserRole($id: ID!, $role: String!) {
+    updateUserRole(id: $id, role: $role) {
+      _id
+      name
+      role
+    }
+  }
+`;
+
+export const TOGGLE_FAVORITE = gql`
+  mutation ToggleFavorite($productId: ID!) {
+    toggleFavorite(productId: $productId)
+  }
+`;
