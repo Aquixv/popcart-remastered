@@ -1,8 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useApolloClient } from '@apollo/client/react';
+import { GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY } from '../graphql/queries';
+
 import ProductCard from '../Landing page/Productcard';
 import '../Landing page/Products.css';
 import type { Product } from './types';
+
+interface GetProductsResponse {
+  getProducts: {
+    products: Product[];
+  };
+}
+
+interface GetProductsByCategoryResponse {
+  getProductsByCategory: {
+    products: Product[];
+  };
+}
 
 const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
   const { categoryName = '' } = useParams(); 
@@ -10,41 +25,56 @@ const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const client = useApolloClient();
+
   const categoryMap: Record<string, string[]> = {
-  "womens-fashion": ["womens-dresses", "womens-shoes", "womens-watches", "womens-bags", "womens-jewellery"],
-  "mens-fashion": ["mens-shirts", "mens-shoes", "mens-watches"],
-  "electronics": ["smartphones", "laptops", "tablets"],
-};
+    "womens-fashion": ["womens-dresses", "womens-shoes", "womens-watches", "womens-bags", "womens-jewellery"],
+    "mens-fashion": ["mens-shirts", "mens-shoes", "mens-watches"],
+    "electronics": ["smartphones", "laptops", "tablets"],
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
     setLoading(true);
     setActiveFilter('All'); 
 
-    if (isAll) {
-      fetch(`${import.meta.env.VITE_API_URL}/products?limit=0`)
-        .then(res => res.json())
-        .then(data => {
-          setProducts(data.products);
-          setLoading(false);
-        })
-        .catch(err => console.error("Fetch error:", err));
-    } else {
-      const subCategoriesToFetch = categoryMap[categoryName] || [categoryName];
+    const fetchProducts = async () => {
+      try {
+        if (isAll) {
+          // 2. Pass the exact response shape to the generic
+          const { data } = await client.query<GetProductsResponse>({
+            query: GET_PRODUCTS,
+            variables: { limit: 100, skip: 0 } 
+          });
+          
+          setProducts(data?.getProducts.products|| []);
+        } else {
+          const subCategoriesToFetch = categoryMap[categoryName] || [categoryName];
+        
+          const fetchPromises = subCategoriesToFetch.map(subCat => 
+            client.query<GetProductsByCategoryResponse>({
+              query: GET_PRODUCTS_BY_CATEGORY,
+              variables: { categoryName: subCat }
+            })
+          );
 
-      const fetchPromises = subCategoriesToFetch.map(subCat => 
-        fetch(`${import.meta.env.VITE_API_URL}/products/category/${subCat}`).then(res => res.json())
-      );
-
-      Promise.all(fetchPromises)
-        .then(results => {
-          const combinedProducts = results.flatMap(res => res.products);
+          const results = await Promise.all(fetchPromises);
+          
+          const combinedProducts = results.flatMap(
+            res => res.data?.getProductsByCategory.products || []
+          );
+          
           setProducts(combinedProducts);
-          setLoading(false);
-        })
-        .catch(err => console.error("Fetch error:", err));
-    }
-  }, [categoryName, isAll]);
+        }
+      } catch (error) {
+        console.error("GraphQL Fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, [isAll, categoryName, client]);
 
   const displayedProducts = products.filter(product => {
     if (activeFilter === 'All') return true;
@@ -52,7 +82,6 @@ const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
     if (isAll) {
       return categoryMap[activeFilter]?.includes(product.category);
     } else {
-
       return product.category === activeFilter;
     }
   });
@@ -67,7 +96,6 @@ const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
 
   return (
     <section className="product-section" style={{ paddingTop: '40px', minHeight: '80vh' }}>
-
       {filterButtons.length > 0 && (
         <div className="filter-bar">
           <button 
@@ -77,19 +105,18 @@ const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
             All
           </button>
           
-       {filterButtons.map(filterName => (
-  <button 
-    key={filterName}
-    className={activeFilter === filterName ? 'active-filter' : ''} 
-    onClick={() => setActiveFilter(filterName)}
-  >
-
-    {!isAll 
-      ? filterName.replace('womens-', '').replace('mens-', '').toUpperCase() 
-      : filterName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-    }
-  </button>
-))}
+          {filterButtons.map(filterName => (
+            <button 
+              key={filterName}
+              className={activeFilter === filterName ? 'active-filter' : ''} 
+              onClick={() => setActiveFilter(filterName)}
+            >
+              {!isAll 
+                ? filterName.replace('womens-', '').replace('mens-', '').toUpperCase() 
+                : filterName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+              }
+            </button>
+          ))}
         </div>
       )}
 
