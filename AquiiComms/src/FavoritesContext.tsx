@@ -1,10 +1,17 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { FavoritesContextType, Product, UserInfo } from './types';
 const FavoritesContext = createContext<FavoritesContextType | null>(null);
+import {GET_FAVORITES} from '../graphql/queries'
+import { TOGGLE_FAVORITE } from '../graphql/mutations';
+import { useApolloClient } from '@apollo/client/react';
+
+interface GetFavoritesResponse {
+      getFavorites: Product[];
+    }
 
 export const FavoritesProvider = ({ children }: { children: React.ReactNode }) => {
   const [favorites, setFavorites] = useState<string[]>([]);
-
+  const client = useApolloClient();
 
   const fetchFavorites = async () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
@@ -12,20 +19,22 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
       setFavorites([]);
       return;
     }
-
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/favorites`, {
-        headers: { Authorization: `Bearer ${userInfo.token}` }
+      const { data } = await client.query<GetFavoritesResponse>({
+        query: GET_FAVORITES,
+        context: {
+          headers: { Authorization: `Bearer ${userInfo.token}` }
+        },
+        fetchPolicy: 'network-only' 
       });
-      if (response.ok) {
-        const data = await response.json() as Product[];
-        const favoriteIds = data.map(item => item._id);
-        setFavorites(favoriteIds);
-      }
+      const favoriteProducts = data?.getFavorites as Product[];
+      const favoriteIds = favoriteProducts.map(item => item._id);
+      
+      setFavorites(favoriteIds);
     } catch (error) {
-      console.error("Failed to fetch favorites", error);
+      console.error("Failed to fetch favorites via GraphQL", error);
     }
-  };
+  }
 
   const toggleFavorite = async (productId:string) => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
@@ -43,10 +52,12 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     }
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/users/auth/favorites/${productId}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${userInfo.token}` }
-      });
+      await client.mutate({
+        mutation: TOGGLE_FAVORITE,
+        context: {
+          headers: { Authorization: `Bearer ${userInfo.token}` }
+        }
+      })
     } catch (error) {
       console.error("Failed to toggle favorite on server", error);
       fetchFavorites(); 

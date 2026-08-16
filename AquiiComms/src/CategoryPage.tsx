@@ -135,5 +135,3 @@ const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
 };
 
 export default CategoryPage;
-
-//Filler smh
