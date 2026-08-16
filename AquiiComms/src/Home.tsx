@@ -1,38 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Hero from '../Landing page/Hero'
-import Header from '../Landing page/Navbar'
 import ProductList from '../Landing page/Products'
 import CategoryList from '../Landing page/Categories'
 import ServiceSection from '../Landing page/Servicesection'
-import Footer from '../Landing page/Footer'
 import ProductCard from '../Landing page/Productcard';
 import { Product } from './types';
+import { GET_PRODUCTS } from '../graphql/queries';
+import { useApolloClient } from '@apollo/client/react';
+
+interface GetsearchResponse {
+  getProducts: {
+    products: Product[];
+  };
+}
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const location = useLocation();
+  const client =  useApolloClient();
   
   const keyword = new URLSearchParams(location.search).get('keyword');
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const url = keyword 
-          ? `${import.meta.env.VITE_API_URL}/products?keyword=${keyword}`
-          : `${import.meta.env.VITE_API_URL}/products`;
-
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        setProducts(data.products || data);
+        const { data } = await client.query<GetsearchResponse>({
+        query: GET_PRODUCTS,
+        variables: { 
+          keyword: keyword || null 
+        }
+      });
+        setProducts(data?.getProducts.products|| []);
       } catch (error) {
         console.error("Failed to fetch products", error);
       }
     };
 
     fetchProducts();
-  }, [keyword]); 
+  }, [keyword, client]); 
 
   return (
     <>
