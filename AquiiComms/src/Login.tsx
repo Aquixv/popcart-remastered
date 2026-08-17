@@ -4,12 +4,20 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from './AuthContext';
 import { useFavorites } from './FavoritesContext';
+import { LOGIN } from '../graphql/mutations'
+import { useApolloClient } from '@apollo/client/react';
+import type { UserInfo } from './types';
+
+interface GetLoginResponse {
+  loginUser: UserInfo;
+}
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { fetchFavorites } = useFavorites();
+      const client = useApolloClient();
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const userParam = searchParams.get('user');
@@ -44,30 +52,31 @@ const Login = () => {
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: values.email,
-            password: values.password,
-          }),
+       const {data} = await client.mutate<GetLoginResponse>({
+          mutation: LOGIN,
+          variables: {
+          email:values.email,
+          password:values.password
+          }
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Invalid email or password');
+        if (Error && Error.length > 0) {
+          throw new Error('Invalid email or password');
         }
-        login(data); 
+
+        if (data?.loginUser) {
+        login(data?.loginUser); 
+        }
 
         fetchFavorites();
+        navigate('/account');
 
-        navigate('/account'); 
-
-     } catch (error) {
-  if (error instanceof Error) {
-    alert(error.message);
-  }
+    } catch (error) {
+        if (error instanceof Error) {
+          alert(error.message);
+        } else {
+          alert('An unexpected error occurred during login.');
+        }
       } finally {
         setSubmitting(false); 
       }
