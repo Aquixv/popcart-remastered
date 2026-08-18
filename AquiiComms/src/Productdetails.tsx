@@ -2,25 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCart } from './CartContext';
 import { Product, Review } from './types';
-import { number } from 'yup';
+import { useApolloClient } from '@apollo/client/react';
+import { GET_SINGLE_PRODUCT } from '../graphql/queries';
+import { CREATE_PRODUCT_REVIEW } from '../graphql/mutations';
+interface GetSingleProductResponse {
+  getSingleProduct: Product;
+}
 
 const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  
+  const client = useApolloClient();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState('');
+  
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`);
-      const data = await response.json();
-      setProduct(data);
+      const { data } = await client.query<GetSingleProductResponse>({
+        query: GET_SINGLE_PRODUCT,
+        variables: { id }, 
+        context: {
+          headers: { Authorization: userInfo?.token ? `Bearer ${userInfo.token}` : '' }
+        },
+        fetchPolicy: 'network-only' 
+      });
+
+      setProduct(data?.getSingleProduct || null);
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch product", error);
@@ -39,78 +52,77 @@ const ProductDetails = () => {
     setReviewSuccess('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo?.token}`, 
+        await client.mutate({
+        mutation: CREATE_PRODUCT_REVIEW,
+        variables: {
+          productId: id,
+          rating,
+          comment
         },
-        body: JSON.stringify({ rating, comment }),
+        context: {
+          headers: { Authorization: `Bearer ${userInfo?.token}` }
+        }
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setReviewSuccess("Review submitted successfully!");
-        setRating(5);
-        setComment('');
-        fetchProduct();
-      } else {
-        setReviewError(data.message || "Failed to submit review");
-      }
+      setReviewSuccess("Review submitted successfully!");
+      setRating(5);
+      setComment('');
+      fetchProduct();
+      
     } catch (error) {
+      console.error(error);
       setReviewError("Server error. Please try again later.");
     }
   };
 
-const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-  if (!product) return; 
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!product) return; 
 
-  if (window.innerWidth <= 768) {
-      addToCart(product, 1);
-      return;
-    }
-    const target = e.target as HTMLElement;
-    const container = target.closest('.product-details-container'); 
-    const img = container?.querySelector('img');
-    const cartIcon = document.querySelector('.nav-actions .cart-icon');
+    if (window.innerWidth <= 768) {
+        addToCart(product, 1);
+        return;
+      }
+      const target = e.target as HTMLElement;
+      const container = target.closest('.product-details-container'); 
+      const img = container?.querySelector('img');
+      const cartIcon = document.querySelector('.nav-actions .cart-icon');
 
-    if (!img || !cartIcon) {
-      addToCart(product, 1); 
-      return;
-    }
+      if (!img || !cartIcon) {
+        addToCart(product, 1); 
+        return;
+      }
 
-    const imgRect = img.getBoundingClientRect();
-    const cartRect = cartIcon.getBoundingClientRect();
+      const imgRect = img.getBoundingClientRect();
+      const cartRect = cartIcon.getBoundingClientRect();
 
-    const flyingImg = document.createElement('img');
-    flyingImg.src = product.thumbnail;
-    flyingImg.style.position = 'fixed';
-    flyingImg.style.left = `${imgRect.left}px`;
-    flyingImg.style.top = `${imgRect.top}px`;
-    flyingImg.style.width = `${imgRect.width}px`;
-    flyingImg.style.height = `${imgRect.height}px`;
-    flyingImg.style.borderRadius = '50%';
-    flyingImg.style.objectFit = 'cover';
-    flyingImg.style.zIndex = '9999';
-    flyingImg.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+      const flyingImg = document.createElement('img');
+      flyingImg.src = product.thumbnail;
+      flyingImg.style.position = 'fixed';
+      flyingImg.style.left = `${imgRect.left}px`;
+      flyingImg.style.top = `${imgRect.top}px`;
+      flyingImg.style.width = `${imgRect.width}px`;
+      flyingImg.style.height = `${imgRect.height}px`;
+      flyingImg.style.borderRadius = '50%';
+      flyingImg.style.objectFit = 'cover';
+      flyingImg.style.zIndex = '9999';
+      flyingImg.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+      
+      document.body.appendChild(flyingImg);
+
+      setTimeout(() => {
+        flyingImg.style.left = `${cartRect.left + 10}px`;
+        flyingImg.style.top = `${cartRect.top + 10}px`;
+        flyingImg.style.width = '20px';
+        flyingImg.style.height = '20px';
+        flyingImg.style.opacity = '0.2';
+      }, 10);
     
-    document.body.appendChild(flyingImg);
-
-    setTimeout(() => {
-      flyingImg.style.left = `${cartRect.left + 10}px`;
-      flyingImg.style.top = `${cartRect.top + 10}px`;
-      flyingImg.style.width = '20px';
-      flyingImg.style.height = '20px';
-      flyingImg.style.opacity = '0.2';
-    }, 10);
-  
-    setTimeout(() => {
-      flyingImg.remove();
-      addToCart(product, 1); 
-      cartIcon.classList.add('pop-animation');
-      setTimeout(() => cartIcon.classList.remove('pop-animation'), 300);
-    }, 800);
+      setTimeout(() => {
+        flyingImg.remove();
+        addToCart(product, 1); 
+        cartIcon.classList.add('pop-animation');
+        setTimeout(() => cartIcon.classList.remove('pop-animation'), 300);
+      }, 800);
   };
 
   if (loading) return <div className="loader" style={{ textAlign: 'center', marginTop: '50px' }}>Loading product...</div>;
@@ -147,12 +159,12 @@ const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
         </p>
 
         {product.stock > 0 ? (
-<button className="add-to-cart-btn" onClick={handleAddToCart}>Add to Cart</button>
-) : (
-  <button disabled className="bg-gray-400 cursor-not-allowed No">
-    Out of Stock
-  </button>
-)}
+          <button className="add-to-cart-btn" onClick={handleAddToCart}>Add to Cart</button>
+        ) : (
+          <button disabled className="bg-gray-400 cursor-not-allowed No">
+            Out of Stock
+          </button>
+        )}
 
         <div style={{ marginTop: '60px', borderTop: '1px solid #eee', paddingTop: '40px' }}>
           <h2>Reviews ({product.reviews?.length || 0})</h2>
@@ -161,7 +173,6 @@ const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
           {product.reviews && product.reviews.map((review, index) => {
   
             const displayName = review.name || review.reviewerName || "Anonymous Shopper";
-            
             const displayDate = review.createdAt || review.date;
 
             return (
