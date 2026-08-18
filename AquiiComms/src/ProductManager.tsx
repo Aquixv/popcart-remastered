@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import type { Product } from './types';
+import { useApolloClient } from '@apollo/client/react';
+import { GET_PRODUCTS } from '../graphql/queries';
+import { DELETE_PRODUCT } from '../graphql/mutations';
+
+interface GetProductsResponse {
+  getProducts: {
+    products: Product[];
+  };
+}
 
 const ProductManager = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const client = useApolloClient()
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
   useEffect(() => {
@@ -18,15 +28,16 @@ const ProductManager = () => {
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/products/all`, {
-          headers: { Authorization: `Bearer ${userInfo.token}` }
+        const {data} = await client.query<GetProductsResponse>({
+          query: GET_PRODUCTS,
+          context: { Authorization: `Bearer ${userInfo.token}` },
+          fetchPolicy: 'network-only'
         });
-        const data = await response.json();
-        if (response.ok) {
-          setProducts(data);
-        }
+        
+          setProducts(data?.getProducts.products || [])
+
       } catch (error) {
-        console.error("Failed to fetch global inventory", error);
+        console.error("Failed to get total inventory", error);
       } finally {
         setLoading(false);
       }
@@ -37,17 +48,18 @@ const ProductManager = () => {
   const handleDelete = async (productId:string) => {
     if (window.confirm("DELETE THIS PRODUCT? This cannot be undone.")) {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}`, {
-          method: 'DELETE',
+        const response = await client.mutate ({
+          mutation: DELETE_PRODUCT,
+          context:{
           headers: { Authorization: `Bearer ${userInfo.token}` }
-        });
-
-        if (response.ok) {
+          }
+        })
           setProducts(products.filter(p => p._id !== productId));
-        } else {
-          const data = await response.json();
-          alert(data.message || "Failed to delete product");
-        }
+
+          if (!response){
+          throw new Error("Failed to delete product");
+          }
+
       } catch (error) {
         console.error("Delete error:", error);
       }
