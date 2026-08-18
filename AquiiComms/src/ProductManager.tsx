@@ -65,7 +65,7 @@ const ProductManager = () => {
 
       } catch (error) {
         console.error("Delete error:", error);
-        alert("Error Occurred while deleting products")
+        alert("Error occurred while deleting products")
       }
     }
   };

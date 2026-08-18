@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { RESET_PASSWORD } from '../graphql/mutations';
+import { useApolloClient } from '@apollo/client/react';
+    try {
+      const result = await client.mutate<ResetPasswordData>({
+        mutation: RESET_PASSWORD,
+        variables: {
+          resetToken: token,
+          newPassword: password,
+        },
+      });
 
-const ResetPassword = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { token } = useParams(); 
-  const navigate = useNavigate();
+      const res = result.data?.resetPassword;
+
+      if (res && res.success) {
+        setMessage(res.message || 'Password reset successful! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        throw new Error(res?.message || 'Invalid or expired token.');
+      }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,20 +35,23 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/reset-password/${token}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+      const {data, errors} = await client.mutate({
+      mutation: RESET_PASSWORD,
+      variables: {
+        resetToken : token,
+        newPassword: password
+      },
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (errors && errors.length > 0) {
+        throw new Error(errors[0].message);
+      }
+      
+      if (!data) {
         setMessage("Password reset successful! Redirecting to login...");
         setTimeout(() => navigate('/login'), 2000); 
       } else {
-        setError(data.message || "Invalid or expired token.");
+        throw new Error ("Invalid or expired token.");
       }
     } catch (err) {
       setError("Failed to connect to the server.");
