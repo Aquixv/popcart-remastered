@@ -23,14 +23,14 @@ const ProductManager = () => {
     if (!userInfo || userInfo.role !== 'admin') {
       navigate('/');
     }
-  }, [navigate, userInfo]);
+  }, [navigate, userInfo.role]);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
         const {data} = await client.query<GetProductsResponse>({
           query: GET_PRODUCTS,
-          context: { Authorization: `Bearer ${userInfo.token}` },
+          context:{ headers: { Authorization: `Bearer ${userInfo?.token}` }},
           fetchPolicy: 'network-only'
         });
         
@@ -42,26 +42,30 @@ const ProductManager = () => {
         setLoading(false);
       }
     };
-    fetchAllProducts();
-  }, [userInfo]);
+    if (userInfo?.token && userInfo?.role === 'admin') {
+        fetchAllProducts();
+    }
+  }, [client, userInfo?.token, userInfo?.role]);
 
   const handleDelete = async (productId:string) => {
     if (window.confirm("DELETE THIS PRODUCT? This cannot be undone.")) {
       try {
         const response = await client.mutate ({
           mutation: DELETE_PRODUCT,
+          variables: { id: productId },
           context:{
           headers: { Authorization: `Bearer ${userInfo.token}` }
           }
-        })
-          setProducts(products.filter(p => p._id !== productId));
+        });
 
           if (!response){
           throw new Error("Failed to delete product");
           }
+          setProducts(products.filter(p => p._id !== productId));
 
       } catch (error) {
         console.error("Delete error:", error);
+        alert("Error Occurred while deleting products")
       }
     }
   };
