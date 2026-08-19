@@ -4,10 +4,19 @@ import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from './AuthContext';
+import { useApolloClient } from '@apollo/client/react';
+import { REGISTER } from '../graphql/mutations'
+import { UserInfo } from './types';
+
+interface GetsignupResponse {
+  registerUser: UserInfo;
+}
 
 const Signup = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const client = useApolloClient();
+
   const validationSchema = Yup.object({
     name: Yup.string()
       .min(2, 'Name must be at least 2 characters')
@@ -33,32 +42,32 @@ const Signup = () => {
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/register`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const { data } = await client.mutate<GetsignupResponse>({
+          mutation: REGISTER,
+          variables: {
+             name: values.name,
+             email: values.email,
+             password: values.password,
           },
-          body: JSON.stringify({
-            name: values.name,
-            email: values.email,
-            password: values.password,
-          }),
+          errorPolicy: 'all'
         });
+        
 
-        const data = await response.json();
+        const userData = data?.registerUser || null;
 
-        if (!response.ok) {
-          throw new Error(data.message || 'Something went wrong during signup');
+        if (userData) {
+          login(userData);
+          navigate('/account'); 
+        } else {
+          throw new Error('No user data returned from server');
         }
 
-        login(data);
-
-        navigate('/account'); 
-
       } catch (error) {
-  if (error instanceof Error) {
-    alert(error.message);
-  }
+        if (error instanceof Error) {
+          alert(error.message);
+        } else {
+          alert('An unexpected error occurred during signup.');
+        }
       } finally {
         setSubmitting(false); 
       }

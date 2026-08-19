@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const Register = gql `
+export const REGISTER = gql `
 mutation Mutation($name: String!, $email: String!, $password: String!) {
   register(name: $name, email: $email, password: $password) {
     token
