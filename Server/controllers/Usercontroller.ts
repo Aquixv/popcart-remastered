@@ -51,13 +51,30 @@ export const getFavorites = async (_: any, __: any, context: any) => {
 export const getAllUsers = async (_:any, __: any, context:any) => {
   try {
     if (!context.user){
-    throw new Error("Not Authentified");
+    throw new Error("Not Authenticated");
     }
     const users = await User.find({}).select('-password');
     return (users);
   } catch (error) {
     console.error("Fetch all users error:", error);
     throw new Error("Server error in fetching new users");
+  }
+};
+export const getUserProfile = async (_: any, __: any, context: any) => {
+  try {
+    if (!context.user) {
+      throw new Error("Not Authenticated");
+    }
+    const user = await User.findById(context.user._id).select('-password');
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user;
+  } catch (error) {
+    console.error("Fetch user profile error:", error);
+    throw new Error("Server error fetching user profile");
   }
 };
 

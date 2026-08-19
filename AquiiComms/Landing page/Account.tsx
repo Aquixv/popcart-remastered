@@ -2,13 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../src/AuthContext';
 import ProfilePicUpload from './profilepic';
-import type { UserProfile, Order, UserInfo } from './types'; 
+import type { UserProfile, Order, UserInfo, OrderItem } from './types'; 
+import { useApolloClient } from '@apollo/client/react';
+import { UPGRADE_TO_SELLER } from '../graphql/mutations';
+import { GET_USER_PROFILE, GET_ORDERS } from '../graphql/queries';
+
+interface GetUpgradeResponse {
+      upgradeToSeller: UserInfo;
+    }
+
+ interface GetOrderResponse {
+        getOrders: Order[];
+ }
+  interface GetUserProfileResponse {
+        getUserProfile: UserProfile;
+ }
 
 const Account = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'selling' | 'settings'>('profile');
+  const client = useApolloClient();
   
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [myOrders, setMyOrders] = useState<Order[]>([]);
@@ -16,28 +31,33 @@ const Account = () => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;
   
   const handleUpgradeToSeller = async () => {
+    if (!userInfo?.token) return; 
+
     setIsUpgrading(true);
+
     try {
-      if (!userInfo?.token) return; 
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/profile/upgrade`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
+      const { data } = await client.mutate<GetUpgradeResponse>({
+        mutation: UPGRADE_TO_SELLER,
+        context: {
+          headers: { Authorization: `Bearer ${userInfo.token}` }
+        }
       });
+      const updatedUser = data?.upgradeToSeller || null;
 
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('userInfo', JSON.stringify(data));
+      if (updatedUser) {
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser));
         window.location.reload(); 
       } else {
-        alert(data.message || "Failed to upgrade account");
+        throw new Error("No data returned from upgrade");
       }
+
     } catch (error) {
       console.error("Upgrade error:", error);
-      alert("Something went wrong!");
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Something went wrong!");
+      }
     } finally {
       setIsUpgrading(false);
     }
@@ -47,15 +67,22 @@ const Account = () => {
     if (activeTab === 'orders' && userInfo?.token) {
       const fetchOrders = async () => {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/orders`, {
-            headers: { Authorization: `Bearer ${userInfo.token}` }
-          });
-          const data = await response.json();
-          if (response.ok) {
-            setMyOrders(data);
-          }
+         const { data } = await client.query<GetOrderResponse>({
+                 query: GET_ORDERS,
+                 context: {
+                   headers: { Authorization: `Bearer ${userInfo.token}` }
+                 },
+                 fetchPolicy: 'network-only' 
+               });
+             setMyOrders(data?.getOrders || []);
+          
         } catch (error) {
-          console.error("Failed to fetch orders", error);
+          console.error("Error fetching Orders:", error);
+          if (error instanceof Error) {
+            alert(error.message);
+          } else {
+            alert("Something went wrong!");
+          }
         } finally {
           setLoadingOrders(false);
         }
@@ -72,29 +99,29 @@ const Account = () => {
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/profile`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        });
+        const { data } = await client.query<GetUserProfileResponse>({
+                 query: GET_USER_PROFILE,
+                 context: {
+                   headers: { Authorization: `Bearer ${userInfo.token}` }
+                 },
+                 fetchPolicy: 'network-only' 
+               });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          setProfile(data);
+        if (data?.getUserProfile) {
+          setProfile(data.getUserProfile); 
         } else {
-          localStorage.removeItem('userInfo');
-          navigate('/login');
+          throw new Error("No profile data returned");
         }
+
       } catch (error) {
-        console.error("Fetch error:", error);
+        console.error("Fetch profile error:", error);
+        localStorage.removeItem('userInfo');
+        navigate('/login');
       }
     };
 
     fetchProfile();
-  }, [navigate]);
+  }, [navigate, userInfo?.token, client]);
 
   const handleLogout = () => {
     logout();

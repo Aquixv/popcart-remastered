@@ -168,3 +168,14 @@ query GetSellerRevenue {
     totalItemsSold
   }
 }`
+
+export const GET_USER_PROFILE = gql`
+query GetUserProfile {
+  getUserProfile {
+    _id
+    name
+    email
+    role
+    avatar
+  }
+}`

@@ -49,7 +49,6 @@ const Signup = () => {
              email: values.email,
              password: values.password,
           },
-          errorPolicy: 'all'
         });
         
 

@@ -90,6 +90,7 @@ type Review {
     getMyOrders: [Order!]
     getSellerRevenue: RevenueStats
     getAllUsers: [User!]
+    getUserProfile: User!
   getFavorites: [Product!]
   }
 

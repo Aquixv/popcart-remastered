@@ -2,13 +2,14 @@ import { registerUser, loginUser, forgotPassword, resetPassword, upgradeToSeller
 import { getProducts, getSingleProduct, getProductsByCategory, createProductReview } from './controllers/Productcontroller';
 import { getCart, addToCart, removeFromCart, decreaseQuantity } from './controllers/Cartcontroller';
 import { getMyOrders, createOrder, getSellerRevenue } from './controllers/Ordercontroller';
-import { toggleFavorite, getFavorites, getAllUsers, updateUserRole } from './controllers/Usercontroller';
+import { toggleFavorite, getFavorites, getAllUsers, updateUserRole, getUserProfile } from './controllers/Usercontroller';
 
 export const resolvers = {
   Query: {
     // USERS FOR NOTING
     getAllUsers: getAllUsers,
     getFavorites: getFavorites,
+    getUserProfile: getUserProfile,
     
     // PRODUCTS FOR NOTING
     getProducts: getProducts,
