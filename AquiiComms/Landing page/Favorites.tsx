@@ -1,16 +1,32 @@
-import type { Product } from './types';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from './Productcard';
 import { useFavorites } from '../src/FavoritesContext'; 
+import { useApolloClient } from '@apollo/client/react';
+import { Product } from './types';
+import { GET_FAVORITES } from '../graphql/queries';
+import { UserInfo } from './types';
+
+interface GetClientResponse {
+      GetFavorites: Product[];
+    }
+
 
 const Favorites = () => {
   const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;
   
   const { favorites } = useFavorites(); 
+  const client = useApolloClient();
 
   useEffect(() => {
+    if (!userInfo?.token) {
+      setFavoriteProducts([]);
+      setIsLoading(false);
+      return; 
+    }
+
     const fetchFullFavorites = async () => {
       const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
       if (!userInfo || !userInfo.token) {
@@ -19,14 +35,14 @@ const Favorites = () => {
       }
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/favorites`, {
-          headers: { Authorization: `Bearer ${userInfo.token}` }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setFavoriteProducts(data);
-        }
+        const { data } = await client.query<GetClientResponse>({
+                query: GET_FAVORITES,
+                context: {
+                  headers: { Authorization: `Bearer ${userInfo.token}` }
+                },
+                fetchPolicy: 'network-only'
+              })
+          setFavoriteProducts(data?.GetFavorites || []);
       } catch (error) {
         console.error("Failed to load wishlist", error);
       } finally {
