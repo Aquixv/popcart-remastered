@@ -41,7 +41,6 @@ const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
     const fetchProducts = async () => {
       try {
         if (isAll) {
-          // 2. Pass the exact response shape to the generic
           const { data } = await client.query<GetProductsResponse>({
             query: GET_PRODUCTS,
             variables: { limit: 100, skip: 0 } 
