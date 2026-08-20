@@ -10,6 +10,7 @@ import dns from "node:dns";
 import { resolvers } from './resolvers';
 import { typeDefs } from './typeDefs';
 import { setServers } from 'node:dns';
+import {upload, cloudinary } from './cloudinary';
 import mongoose from 'mongoose';
 import User from './models/Schema';
 import * as jwt from 'jsonwebtoken'
@@ -65,7 +66,27 @@ const startApolloServer = async () => {
         })
     );
 
-    // app.use('/api/upload', cloudinary);
+    app.post('/users/auth/profile/upload', upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image provided' });
+    }
+
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+    const result = await cloudinary.uploader.upload(dataURI, {
+      folder: 'ecommerce_avatars',
+      resource_type: 'auto',
+    });
+
+    res.json({ avatarUrl: result.secure_url });
+
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
+    res.status(500).json({ message: "Server error during image upload" });
+  }
+});
+
     app.get('/', (req, res) => res.send('API Live'));
     app.get('/health', (req, res) => res.status(200).send('Server is alive and kicking! 🚀'));
     
