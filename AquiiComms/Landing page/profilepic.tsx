@@ -1,18 +1,18 @@
 import { useState, useRef } from 'react';
-import type { UserInfo } from './types';
 
-const user = JSON.parse(localStorage.getItem('userInfo') || "{}");
 const ProfilePicUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const user = JSON.parse(localStorage.getItem('userInfo') || "{}");
 
-const handleIconClick = () => {
-  fileInputRef.current?.click(); 
-};
+  const handleIconClick = () => {
+    fileInputRef.current?.click(); 
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
+    const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file)); 
@@ -24,27 +24,21 @@ const handleIconClick = () => {
 
     const formData = new FormData();
     formData.append('avatar', selectedFile); 
-    console.log("1. Selected File in State:", selectedFile);
-    for (let [key, value] of formData.entries()) {
-      console.log(`2. Inside FormData -> ${key}:`, value);
-    }
+    
     try {
-      const savedUser = JSON.parse(localStorage.getItem('userInfo') || "{}");
-
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/profile/upload`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${savedUser ? savedUser.token : ''}` 
+          Authorization: `Bearer ${user ? user.token : ''}` 
         },
         body: formData,
       });
 
       const data = await response.json();
-      console.log("Success:", data);
-
+      
       if (data.avatarUrl) {
-        savedUser.avatar = data.avatarUrl;
-        localStorage.setItem('userInfo', JSON.stringify(savedUser));
+        user.avatar = data.avatarUrl;
+        localStorage.setItem('userInfo', JSON.stringify(user));
         window.location.reload(); 
       }
 
@@ -67,8 +61,8 @@ const handleIconClick = () => {
       <div style={{ position: 'relative', width: '150px', height: '150px' }}>
         
         <img 
-  src={user?.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
-  alt="Profile"
+          src={previewUrl || user?.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
+          alt="Profile"
           style={{ 
             width: '100%', 
             height: '100%', 
@@ -104,6 +98,7 @@ const handleIconClick = () => {
           />
         </button>
       </div>
+      
       {selectedFile && (
         <button 
           onClick={handleUpload}
@@ -123,4 +118,5 @@ const handleIconClick = () => {
     </div>
   );
 };
-  export default ProfilePicUpload;
+
+export default ProfilePicUpload;
