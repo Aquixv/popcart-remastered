@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApolloClient } from '@apollo/client/react';
+import { FORGOT_PASSWORD } from '../graphql/mutations';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -7,6 +9,7 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const client = useApolloClient();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,21 +18,15 @@ const ForgotPassword = () => {
     setError('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage(data.message || "Email sent! Check your inbox.");
-      } else {
-        setError(data.message || "Something went wrong.");
-      }
-    } catch (err) {
-      setError("Failed to connect to the server.");
+      const { data } = await client.mutate({
+            mutation: FORGOT_PASSWORD,
+            variables: {
+              email:email
+            },
+            });
+        setMessage("Email sent! Check your inbox.");
+    } catch (err: any) {
+      setError(err.message || "Failed to connect to the server.");
     } finally {
       setIsLoading(false);
     }

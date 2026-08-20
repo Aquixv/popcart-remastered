@@ -38,18 +38,14 @@ const ResetPassword = () => {
       const {data} = await client.mutate({
       mutation: RESET_PASSWORD,
       variables: {
-        resetToken : token,
-        newPassword: password
+        token : token,
+        password: password
       },
       });
-      
-      if (!data) {
         setMessage("Password reset successful! Redirecting to login...");
         setTimeout(() => navigate('/login'), 2000); 
-      } else {
-        throw new Error ("Invalid or expired token.");
-      }
-    } catch (err) {
+
+    } catch (err:any) {
       console.error("Details here:",err)
       setError("Failed to connect to the server.");
     } finally {
