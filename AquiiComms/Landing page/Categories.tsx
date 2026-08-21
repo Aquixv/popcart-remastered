@@ -1,5 +1,5 @@
 import React from 'react';
-import './Categories.css';
+import './Categories.css'
 
 const categories = [
   { id: 1, title: 'Furniture', img: '/furniture.jpg', color: '#e0f2f1' },

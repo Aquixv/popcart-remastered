@@ -27,6 +27,7 @@ export type UserInfo = {
   role: string;     
   token: string;
   avatar?: string;  
+  totalRevenue: number;
 };
 export type OrderItem = {
   name: string;

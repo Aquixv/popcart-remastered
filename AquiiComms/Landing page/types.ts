@@ -26,7 +26,9 @@ export type UserInfo = {
   email: string;
   role: string;       // Usually 'user' or 'seller' or 'admin'
   token: string;
-  avatar?: string;    // Optional because some users might not upload one
+  avatar?: string; // Optional because some users might not upload one
+  totalRevenue: number;   
+  totalItemsSold:number;
 };
 export type OrderItem = {
   name: string;

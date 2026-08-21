@@ -1,17 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../src/AuthContext';
 import ProfilePicUpload from './profilepic';
-import { Product } from './types';
-import { UserProfile } from './types';
-import type { UserInfo } from './types';
+import { useQuery, useMutation } from '@apollo/client/react';
+import { useEffect } from 'react';
+import { GET_SELLER_PRODUCTS, GET_USER_PROFILE, GET_SELLER_REVENUE } from '../graphql/queries';
+import { UPDATE_PRODUCT, DELETE_PRODUCT, UPGRADE_TO_SELLER } from '../graphql/mutations';
+import type { Product, UserProfile, UserInfo } from './types';
 
+interface GetProfileQuery {
+  getProfile: UserProfile;
+}
+
+interface UpgradeSellerMutation {
+  upgradeToSeller: UserInfo;
+}
+
+interface GetRevenueQuery {
+  getSellerRevenue: {
+    totalRevenue: number;
+    totalItemsSold: number;
+  };
+}
+
+interface GetProductsQuery {
+  getSellerProducts: Product[];
+}
 const Seller = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'myProducts' | 'addProduct' | 'analytics'>('profile');
-  const [isUpgrading, setIsUpgrading] = useState(false);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
@@ -19,146 +37,67 @@ const Seller = () => {
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [myProducts, setMyProducts] = useState<Product[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [revenueData, setRevenueData] = useState({ totalRevenue: 0, totalItemsSold: 0 });
-  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
+
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;
+
+  const { data: profileData, error: profileError } = useQuery<GetProfileQuery>(GET_USER_PROFILE);
+
+  useEffect(() => {
+    if (profileError) {
+      localStorage.removeItem('userInfo');
+      navigate('/login');
+    }
+  }, [profileError, navigate]);
+
+  const { data: productsData, loading: loadingProducts } = useQuery<GetProductsQuery>(GET_SELLER_PRODUCTS, {
+    skip: activeTab !== 'myProducts'
+  });
+
+  const { data: analyticsData, loading: loadingAnalytics } = useQuery<GetRevenueQuery>(GET_SELLER_REVENUE, {
+    skip: activeTab !== 'analytics'
+  });
+
+  const [updateProduct] = useMutation(UPDATE_PRODUCT);
+  
+  const [deleteProduct] = useMutation(DELETE_PRODUCT, {
+    refetchQueries: [{ query: GET_SELLER_PRODUCTS }] 
+  });
+  const [upgradeToSeller, { loading: isUpgrading }] = useMutation<UpgradeSellerMutation>(UPGRADE_TO_SELLER);
+
+  const profile = profileData?.getProfile;
+  const myProducts: Product[] = productsData?.getSellerProducts || [];
+  const revenueData = analyticsData?.getSellerRevenue || { totalRevenue: 0, totalItemsSold: 0 };
 
   const handleUpdateStock = async (productId: string, currentStock: number) => {
-  const stockStr = window.prompt("Update Stock Quantity:", currentStock.toString());
-  
-  if (stockStr === null || stockStr.trim() === "") return; 
+    const stockStr = window.prompt("Update Stock Quantity:", currentStock.toString());
+    if (stockStr === null || stockStr.trim() === "") return; 
 
-  const updatedStock = parseInt(stockStr);
-
-  if (isNaN(updatedStock) || updatedStock < 0) {
-    alert("Please enter a valid number!");
-    return;
-  }
-
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/products/${productId}/stock`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json', 
-        Authorization: `Bearer ${userInfo?.token}` 
-      },
-      body: JSON.stringify({ stock: updatedStock })
-    });
-
-    if (response.ok) {
-      setMyProducts(myProducts.map(p => 
-        p._id === productId ? { ...p, stock: updatedStock } : p
-      ));
-      alert("✅ Stock Updated!");
-    } else {
-      const data = await response.json();
-      alert(data.message || "Failed to update stock");
-    }
-  } catch (error) {
-    console.error("Update stock error:", error);
-    alert("Server error while updating stock.");
-  }
-};
-  const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;;
-  
-  const handleUpgradeToSeller = async () => {
-    setIsUpgrading(true);
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/profile/upgrade`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${userInfo?.token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('userInfo', JSON.stringify(data));
-        window.location.reload(); 
-      } else {
-        alert(data.message || "Failed to upgrade Seller");
-      }
-    } catch (error) {
-      console.error("Upgrade error:", error);
-      alert("Something went wrong!");
-    } finally {
-      setIsUpgrading(false);
-    }
-  };
-useEffect(() => {
-    if (activeTab === 'myProducts' && userInfo) {
-      const fetchMyProducts = async () => {
-        try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/products/mine`, {
-            headers: { Authorization: `Bearer ${userInfo.token}` }
-          });
-          const data = await response.json();
-          if (response.ok) {
-            setMyProducts(data);
-          }
-        } catch (error) {
-          console.error("Failed to fetch products", error);
-        } finally {
-          setLoadingProducts(false);
-        }
-      };
-      fetchMyProducts();
-    }
-  }, [activeTab, userInfo]);
-  useEffect(() => {
-    if (activeTab === 'analytics' && userInfo) {
-      const fetchAnalytics = async () => {
-        try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/orders/revenue`, {
-            headers: { Authorization: `Bearer ${userInfo.token}` }
-          });
-          const data = await response.json();
-          if (response.ok) {
-            setRevenueData(data);
-          }
-        } catch (error) {
-          console.error("Failed to fetch analytics", error);
-        } finally {
-          setLoadingAnalytics(false);
-        }
-      };
-      fetchAnalytics();
-    }
-  }, [activeTab, userInfo]);
-
-  useEffect(() => {
-    if (!userInfo || !userInfo.token) {
-      navigate('/login');
+    const updatedStock = parseInt(stockStr);
+    if (isNaN(updatedStock) || updatedStock < 0) {
+      alert("Please enter a valid number!");
       return;
     }
 
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/profile`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          setProfile(data);
-        } else {
-          localStorage.removeItem('userInfo');
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error("Fetch error:", error);
-      }
-    };
-
-    fetchProfile();
-  }, [navigate]);
+    try {
+      await updateProduct({
+        variables: { productId, stock: updatedStock }
+      });
+      alert("✅ Stock Updated!");
+    } catch (error: any) {
+      console.error("Update stock error:", error);
+      alert(error.message || "Server error while updating stock.");
+    }
+  };
+  
+  const handleUpgradeToSeller = async () => {
+    try {
+      const { data } = await upgradeToSeller();
+      localStorage.setItem('userInfo', JSON.stringify({ ...userInfo, ...data?.upgradeToSeller || null}));
+      window.location.reload(); 
+    } catch (error: any) {
+      alert(error.message || "Failed to upgrade Seller");
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -166,12 +105,8 @@ useEffect(() => {
   };
 
   const handleProductSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-   e.preventDefault();
-    
-    if (!image) {
-      alert("Please upload a product image!");
-      return;
-    }
+    e.preventDefault();
+    if (!image) { alert("Please upload a product image!"); return; }
 
     setIsPublishing(true);
     const formData = new FormData();
@@ -185,50 +120,34 @@ useEffect(() => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/products`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${userInfo?.token}`,
-        },
+        headers: { Authorization: `Bearer ${userInfo?.token}` },
         body: formData,
       });
 
       const data = await response.json();
-
       if (response.ok) {
         alert("Product published successfully!");
-        setTitle('');
-        setPrice('');
-        setStock('');
-        setDescription('');
-        setImage(null);
+        setTitle(''); setPrice(''); setStock(''); setDescription(''); setImage(null);
       } else {
         alert(data.message || "Failed to publish product");
       }
     } catch (error) {
-      console.error("Publish error:", error);
       alert("Something went wrong hitting the server.");
     } finally {
       setIsPublishing(false);
     }
   };
-  const handleDeleteProduct = async (productId:string) => {
+
+  const handleDeleteProduct = async (productId: string) => {
     if (window.confirm("Are you sure you want to delete this product? This cannot be undone.")) {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${userInfo?.token}` }
-        });
-
-        if (response.ok) {
-          setMyProducts(myProducts.filter(p => p._id !== productId));
-        } else {
-          const data = await response.json();
-          alert(data.message || "Failed to delete product");
-        }
-      } catch (error) {
-        console.error("Delete error:", error);
+        await deleteProduct({ variables: { productId } });
+      } catch (error: any) {
+        alert(error.message || "Failed to delete product");
       }
     }
   };
+
   if (!profile) return <div style={{ padding: '100px 20px', textAlign: 'center' }}>Loading your profile...</div>;
 
   return (
@@ -238,7 +157,7 @@ useEffect(() => {
         <div className="Seller-sidebar" style={{ flex: '1', minWidth: '250px', background: '#fff', borderRadius: '15px', padding: '20px', height: 'fit-content', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
           <div style={{ textAlign: 'center', paddingBottom: '20px', borderBottom: '1px solid #eee', marginBottom: '20px' }}>
             <div style={{ width: '80px', height: '80px', background: '#000', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 10px' }}>
-              {profile.name.charAt(0)}
+              {profile.name?.charAt(0)}
               <ProfilePicUpload></ProfilePicUpload>
             </div>
             <h3 style={{ margin: '0', marginTop:'60px' }}>{profile.name}</h3>

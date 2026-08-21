@@ -3,14 +3,16 @@ import { useCart } from '../src/CartContext';
 import { PaystackButton } from 'react-paystack';
 import { useNavigate } from 'react-router-dom';
 import type { ShippingAddress, UserInfo } from './types';
+import { useApolloClient } from '@apollo/client/react';
+import { CREATE_ORDER } from '../graphql/mutations';
 type PaystackResponse = {
   reference: string;
   status: string;
 };
-
 const Checkout = () => {
   const { cart, cartCount, fetchCart } = useCart();
   const navigate = useNavigate();
+  const client = useApolloClient()
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
   address: '',
@@ -37,53 +39,56 @@ const Checkout = () => {
     onSuccess: async (response: PaystackResponse) => {
       console.log("💳 Paystack Success!", response);
       
-      try {
-        const formattedItems = cart.items
-          .filter(item => item && item.product && item.product._id)
-          .map(item => ({
-            name: item.product.title, 
-            quantity: item.quantity,
-            image: item.product.thumbnail, 
-            price: item.product.price,
-            product: item.product._id
-          }));
-
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/orders`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${userInfo?.token}`
+     try {
+      // 1. Format the items exactly as before
+      const formattedItems = cart.items
+        .filter(item => item && item.product && item.product._id)
+        .map(item => ({
+          name: item.product.title, 
+          quantity: item.quantity,
+          image: item.product.thumbnail, 
+          price: item.product.price,
+          product: item.product._id
+        }));
+        
+      const { data } = await client.mutate({
+        mutation: CREATE_ORDER, 
+        variables: {
+          orderItems: formattedItems,
+          shippingAddress,
+          paymentResult: {
+            id: response.reference,
+            status: response.status,
+            email_address: userInfo?.email
           },
-          body: JSON.stringify({
-            orderItems: formattedItems,
-            shippingAddress,
-            paymentResult: {
-              id: response.reference,
-              status: response.status,
-              email_address: userInfo?.email
-            },
-            itemsPrice: totalAmount,
-            totalPrice: totalAmount
-          })
-        });
-
-        if (res.ok) {
-          console.log("✅ Order saved to database!");
-          localStorage.removeItem('guestCart');
-          fetchCart(); 
-          navigate('/delivery'); 
-        } else {
-          const errorData = await res.json();
-          console.error("❌ Backend rejected order:", errorData);
-          alert(`Database Error: ${errorData.message}`);
+          itemsPrice: totalAmount,
+          totalPrice: totalAmount
+        },
+        context: {
+          headers: { Authorization: `Bearer ${userInfo?.token}` }
         }
-      } catch (error) {
-        console.error("❌ Fetch failed entirely:", error);
+      });
+
+
+      // 4. Success block!
+      console.log("✅ Order saved to database!");
+      localStorage.removeItem('guestCart');
+      fetchCart(); 
+      navigate('/delivery'); 
+
+    } catch (error) {
+      // 5. Catch block handles network failures AND server rejections
+      console.error("❌ Checkout mutation failed:", error);
+      if (error instanceof Error) {
+        alert(`Database Error: ${error.message}`);
+      } else {
+        alert("Something went wrong saving the order!");
       }
-    },
-    onClose: () => {
-      alert("Wait! Complete Checkout!");
-    },
+    }
+  },
+  onClose: () => {
+    alert("Wait! Complete Checkout!");
+  },
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

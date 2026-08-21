@@ -4,7 +4,7 @@ import { useApolloClient } from '@apollo/client/react';
 import { GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY } from '../graphql/queries';
 
 import ProductCard from '../Landing page/Productcard';
-import '../Landing page/Products.css';
+import '../Landing page/Products.css'
 import type { Product } from './types';
 
 interface GetProductsResponse {

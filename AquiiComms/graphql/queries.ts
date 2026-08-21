@@ -23,6 +23,18 @@ export const GET_PRODUCTS = gql `query GetProducts($limit: Int, $skip: Int, $key
   }
 }
 `
+export const GET_SELLER_PRODUCTS = gql`
+  query GetSellerProducts {
+    getSellerProducts {
+      _id
+      title
+      price
+      stock
+      sold
+      thumbnail
+    }
+  }
+`;
 
 export const GET_PRODUCTS_BY_CATEGORY = gql`query Getproductsbycategory($categoryName: String!){
 getProductsByCategory(categoryName: $categoryName) {

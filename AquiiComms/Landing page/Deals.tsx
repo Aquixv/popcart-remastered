@@ -1,15 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from './Productcard';
 import { Product } from './types';
+import { GET_PRODUCTS } from '../graphql/queries';
+import { useApolloClient } from '@apollo/client/react';
+
+interface GetProductsResponse {
+  getProducts: {
+    products: Product[];
+  };
+}
 
 const Deals = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const client =  useApolloClient()
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/products?skip=30&limit=20`)
-      .then(res => res.json())
-      .then(data => setProducts(data.products));
-  }, []);
+      const fetchProducts = async () => {
+        try {
+          const { data } = await client.query<GetProductsResponse>({
+            query: GET_PRODUCTS,
+            variables: { 
+              skip: 30, 
+              limit: 20 
+            },
+            fetchPolicy: 'network-only'
+          });
+          setProducts(data?.getProducts?.products || []);
+        } catch (error) {
+          console.error("Failed to fetch products:", error);
+        }
+      };
+  
+      fetchProducts();
+    }, [client]);
+  
+
+  
 
   return (
     <section className="product-section" style={{ paddingTop: '40px', minHeight: '80vh' }}>
