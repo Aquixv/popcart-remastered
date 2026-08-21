@@ -14,6 +14,12 @@ import {upload, cloudinary } from './cloudinary';
 import mongoose from 'mongoose';
 import User from './models/Schema';
 import * as jwt from 'jsonwebtoken'
+import router from './routes/routes';
+import configurePassport from './config/Passport';
+import authRoutes from './routes/routes'
+import { PassportStatic } from 'passport';
+
+import passport from 'passport'
 
 
 setServers(['8.8.8.8', '1.1.1.1']);
@@ -36,6 +42,11 @@ app.use(cors({
 app.use(express.static(path.join(__dirname, 'views')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+configurePassport(passport);
+app.use(passport.initialize());
+app.use('/api', authRoutes);
+app.use('/api/users/auth', router);
 
 const startApolloServer = async () => {
     const server = new ApolloServer({
