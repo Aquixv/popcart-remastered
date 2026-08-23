@@ -6,7 +6,7 @@ import CategoryList from '../Landing page/Categories'
 import ServiceSection from '../Landing page/Servicesection'
 import ProductCard from '../Landing page/Productcard';
 import { Product } from './types';
-import { GET_PRODUCTS } from '../graphql/queries';
+import { GET_PRODUCTS} from '../graphql/queries';
 import { useApolloClient } from '@apollo/client/react';
 
 interface GetsearchResponse {
@@ -28,7 +28,7 @@ const Home = () => {
         const { data } = await client.query<GetsearchResponse>({
         query: GET_PRODUCTS,
         variables: { 
-          keyword: keyword || null 
+          keyword: keyword || null
         }
       });
         setProducts(data?.getProducts.products|| []);

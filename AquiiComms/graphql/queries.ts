@@ -36,8 +36,9 @@ export const GET_SELLER_PRODUCTS = gql`
   }
 `;
 
-export const GET_PRODUCTS_BY_CATEGORY = gql`query Getproductsbycategory($categoryName: String!){
-getProductsByCategory(categoryName: $categoryName) {
+export const GET_PRODUCTS_BY_CATEGORY = gql`
+  query GetProductsByCategory($categoryName: String!, $limit: Int) {
+    getProductsByCategory(categoryName: $categoryName, limit: $limit) {
   limit
   skip
   total
