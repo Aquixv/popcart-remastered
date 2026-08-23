@@ -26,7 +26,10 @@ const ProductDetails = () => {
     try {
       const { data } = await client.query<GetSingleProductResponse>({
         query: GET_SINGLE_PRODUCT,
-        variables: { id }, 
+        variables: {
+           productId: id,
+          skip: !id
+        }, 
         context: {
           headers: { Authorization: userInfo?.token ? `Bearer ${userInfo.token}` : '' }
         },
