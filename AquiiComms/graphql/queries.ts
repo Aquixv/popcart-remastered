@@ -11,6 +11,8 @@ export const GET_PRODUCTS = gql `query GetProducts($limit: Int, $skip: Int, $key
       stock
       thumbnail
       brand
+          discountPercentage
+    originalPrice
       rating
       numReviews
       reviews {
@@ -52,6 +54,8 @@ export const GET_PRODUCTS_BY_CATEGORY = gql`
     thumbnail
     brand
     rating
+    discountPercentage
+    originalPrice
     numReviews
     reviews {
       _id

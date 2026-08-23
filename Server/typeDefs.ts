@@ -36,6 +36,8 @@ type Review {
     rating: Float
     numReviews: Int
     reviews: [Review]
+    discountPercentage: Float
+    originalPrice: Int
   }
 
   type PaginatedProducts {
