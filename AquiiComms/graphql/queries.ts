@@ -145,7 +145,12 @@ query GetMyOrders {
       quantity
       price
     }
-    shippingAddress
+    shippingAddress {
+        address
+        city
+        postalCode
+        country
+      }
     paymentMethod
     itemsPrice
     shippingPrice

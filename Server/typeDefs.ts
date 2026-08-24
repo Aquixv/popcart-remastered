@@ -68,13 +68,11 @@ type ShippingAddress {
     product: Product!
     quantity: Int!
     price: Float!
-    shippingAddress: ShippingAddress!
   }
   type Order {
     _id: ID!
     user: User! 
     orderItems: [OrderItem!]!
-    shippingAddress: String!
     paymentMethod: String!
     itemsPrice: Float!
     shippingPrice: Float!
@@ -83,6 +81,7 @@ type ShippingAddress {
     paidAt: String
     isDelivered: Boolean!
     deliveredAt: String
+    shippingAddress: ShippingAddress!
   }
 
   type RevenueStats {
