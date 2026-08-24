@@ -79,6 +79,7 @@ type ShippingAddress {
     totalPrice: Float!
     isPaid: Boolean!
     paidAt: String
+    createdAt: String
     isDelivered: Boolean!
     deliveredAt: String
     shippingAddress: ShippingAddress!

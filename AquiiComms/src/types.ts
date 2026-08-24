@@ -42,6 +42,7 @@ export type Order = {
   totalPrice: number;
   isPaid: boolean;
   orderItems: OrderItem[];
+  thumbnail:string;
 };
 
 export type CartItem = {

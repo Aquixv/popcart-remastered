@@ -156,6 +156,7 @@ query GetMyOrders {
     shippingPrice
     totalPrice
     isPaid
+    createdAt
     paidAt
     isDelivered
     deliveredAt

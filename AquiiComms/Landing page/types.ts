@@ -35,6 +35,8 @@ export type OrderItem = {
   quantity: number;
   price: number;
   image: string; 
+  product:Product;
+  thumbnail:string
 };
 
 export type Order = {

@@ -201,7 +201,7 @@ const Account = () => {
                         <div>
                           <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Order ID:{order._id.substring(order._id.length - 8).toUpperCase()}</span>
                           <span style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
-                            {new Date(order.createdAt).toLocaleDateString()}
+                            {new Date(Number(order.createdAt)).toLocaleDateString()}
                           </span>
                         </div>
                         <div style={{ textAlign: 'right' }}>
@@ -215,7 +215,7 @@ const Account = () => {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {order.orderItems.map((item, index) => (
                           <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <img src={item.image} alt={item.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee' }} />
+                            <img src={item.product?.thumbnail} alt={item.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee' }} />
                             <div>
                               <p style={{ margin: '0', fontWeight: '500' }}>{item.name}</p>
                               <p style={{ margin: '0', fontSize: '0.85rem', color: '#666' }}>Qty: {item.quantity} | ${item.price.toFixed(2)} each</p>
