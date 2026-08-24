@@ -12,7 +12,7 @@ interface GetUpgradeResponse {
     }
 
  interface GetOrderResponse {
-        getOrders: Order[];
+        getMyOrders: Order[];
  }
   interface GetUserProfileResponse {
         getUserProfile: UserProfile;
@@ -74,8 +74,7 @@ const Account = () => {
                  },
                  fetchPolicy: 'network-only' 
                });
-             setMyOrders(data?.getOrders || []);
-          
+             setMyOrders(data?.getMyOrders || []);
         } catch (error) {
           console.error("Error fetching Orders:", error);
           if (error instanceof Error) {
