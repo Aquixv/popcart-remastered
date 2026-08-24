@@ -55,7 +55,9 @@ export const createOrder = async (_: any, args: any, context: any) => {
 export const getMyOrders = async (_: any, __: any, context: any) => {
   try {
     if (!context.user) throw new Error("Not authenticated");
-    const orders = await Order.find({ user: context.user._id }).sort({ createdAt: -1 });
+    const orders = await Order.find({ user: context.user._id })
+                              .populate('orderItems.product') 
+                              .sort({ createdAt: -1 });
     return orders;
     
   } catch (error) {

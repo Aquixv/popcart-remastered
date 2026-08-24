@@ -43,7 +43,7 @@ const CategoryPage = ({ isAll = false }: { isAll?: boolean }) => {
         if (isAll) {
           const { data } = await client.query<GetProductsResponse>({
             query: GET_PRODUCTS,
-            variables: { limit: 100, skip: 0 } 
+            variables: { limit: null} 
           });
           
           setProducts(data?.getProducts.products|| []);

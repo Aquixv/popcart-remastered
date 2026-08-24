@@ -9,8 +9,8 @@ export const typeDefs = `#graphql
 
   type AuthPayload {
     token: String!
-    _id: ID!
-    name: String!
+    _id: ID
+    name: String
     email: String!
     role: String!
     avatar: String
@@ -23,7 +23,13 @@ type Review {
   comment: String!
   user: User   
 }
-
+type ShippingAddress {
+  address: String
+  city: String
+  postalCode: String
+  country: String
+}
+  
   type Product {
     _id: ID!
     title: String!
@@ -62,6 +68,7 @@ type Review {
     product: Product!
     quantity: Int!
     price: Float!
+    shippingAddress: ShippingAddress!
   }
   type Order {
     _id: ID!

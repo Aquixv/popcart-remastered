@@ -103,8 +103,8 @@ export const loginUser = async (_: any, args: { email: string, password: string 
   try {
     const { email, password } = args;
     const user = await User.findOne({ email });
-    
     if (user && (await user.matchPassword(password))) {
+
       return({
         _id: user._id,
         name: user.name,
@@ -114,7 +114,7 @@ export const loginUser = async (_: any, args: { email: string, password: string 
         avatar: user.avatar 
       });
     } else {
-      return ('Invalid email or password');
+      throw new Error('Invalid email or password');
     }
   } catch (error: any) {
     throw new Error(`Server Error: ${error.message}`);

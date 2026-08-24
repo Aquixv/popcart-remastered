@@ -9,7 +9,7 @@ import { useApolloClient } from '@apollo/client/react';
 import type { UserInfo } from './types';
 
 interface GetLoginResponse {
-  loginUser: UserInfo;
+  login: UserInfo;
 }
 
 const Login = () => {
@@ -59,13 +59,8 @@ const Login = () => {
           password:values.password
           }
         });
-
-        if (Error && Error.length > 0) {
-          throw new Error('Invalid email or password');
-        }
-
-        if (data?.loginUser) {
-        login(data?.loginUser); 
+        if (data?.login) {
+        login(data?.login); 
         }
 
         fetchFavorites();
