@@ -2,13 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import type { Product } from './types';
 import { useApolloClient } from '@apollo/client/react';
-import { GET_PRODUCTS } from '../graphql/queries';
+import { GET_ADMIN_PRODUCTS } from '../graphql/queries';
 import { DELETE_PRODUCT } from '../graphql/mutations';
 
 interface GetProductsResponse {
-  getProducts: {
-    products: Product[];
-  };
+  getAdminProducts: Product[];
 }
 
 const ProductManager = () => {
@@ -29,12 +27,12 @@ const ProductManager = () => {
     const fetchAllProducts = async () => {
       try {
         const {data} = await client.query<GetProductsResponse>({
-          query: GET_PRODUCTS,
+          query: GET_ADMIN_PRODUCTS,
           context:{ headers: { Authorization: `Bearer ${userInfo?.token}` }},
           fetchPolicy: 'network-only'
         });
         
-          setProducts(data?.getProducts.products || [])
+          setProducts(data?.getAdminProducts|| []);
 
       } catch (error) {
         console.error("Failed to get total inventory", error);
@@ -136,7 +134,7 @@ const ProductManager = () => {
                       ${product.price.toFixed(2)}
                     </td>
                     <td style={{ padding: '15px' }}>
-                      <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', background: product.stock > 0 ? '#e8f5e9' : '#ffebee', color: product.stock > 0 ? '#2e7d32' : '#c62828' }}>
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', color: product.stock > 0 ? '#2e7d32' : '#c62828' }}>
                         {product.stock > 0 ? `${product.stock} in stock` : 'Out of Stock'}
                       </span>
                     </td>

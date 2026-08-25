@@ -4,7 +4,7 @@ import Product from "../models/Product";
 
 export const getProducts = async (_: any, args: { limit?: number, skip?: number, keyword?: string }) => {
   try {
-    const limit = args.limit !== undefined ? args.limit : 30;
+    const limit = args.limit !== undefined ? args.limit : 0;
     const skip = args.skip || 0;
     const keyword = args.keyword;
 
@@ -33,7 +33,7 @@ export const getProducts = async (_: any, args: { limit?: number, skip?: number,
 export const getProductsByCategory = async(_: any, args: {limit?: number, skip?: number, categoryName?:string }) => {
   try {
     const categoryName = args.categoryName;
-    const limit = args.limit !== undefined ? args.limit : 30;
+    const limit = args.limit !== undefined ? args.limit : 0;
     const skip = args.skip || 0 ; 
 
     const products = await Product.find({ category: categoryName })

@@ -3,6 +3,11 @@ import { gql } from "@apollo/client";
 export const GET_PRODUCTS = gql `query GetProducts($limit: Int, $skip: Int, $keyword: String) {
   getProducts(limit: $limit, skip: $skip, keyword: $keyword) {
     products {
+     user {
+        name
+        email
+        _id
+      }
       _id
       title
       price
@@ -202,3 +207,21 @@ query GetUserProfile {
     avatar
   }
 }`
+export const GET_ADMIN_PRODUCTS = gql `
+query GetAdminProducts {
+  getAdminProducts {
+    _id
+    title
+    price
+    user {
+      name
+      email
+    }
+    category
+    stock
+    thumbnail
+    rating
+    discountPercentage
+  }
+}
+`

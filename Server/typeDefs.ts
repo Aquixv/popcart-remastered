@@ -34,6 +34,7 @@ type ShippingAddress {
     _id: ID!
     title: String!
     price: Float!
+    user: User
     description: String!
     category: String!
     stock: Int!
@@ -94,7 +95,7 @@ type ShippingAddress {
     getProducts(limit: Int, skip: Int, keyword: String): PaginatedProducts
     getProductsByCategory(categoryName: String!, limit: Int, skip: Int): PaginatedProducts
     getSingleProduct(productId: ID!): Product
-    
+    getAdminProducts: [Product]
     getCart: Cart
     getMyOrders: [Order!]
     getSellerRevenue: RevenueStats
