@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';  
 import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_ALL_USERS } from '../graphql/queries'; 
-import {UPGRADE_TO_SELLER} from '../graphql/mutations'
+import {UPDATE_USER_ROLE} from '../graphql/mutations'
 
 import type { UserProfile, UserRole, UserInfo } from './types';
 type AdminUser = UserProfile & { _id: string };
@@ -23,15 +23,11 @@ const AdminDashboard = () => {
     }
   }, [navigate, userInfo]);
  
-
-  // This automatically handles loading state, error state, and the data fetch!
-  // The 'skip' property acts like your old activeTab condition.
   const { data, loading: loadingUsers } = useQuery<{ getAllUsers: AdminUser[] }>(GET_ALL_USERS, {
     skip: activeTab !== 'users' || userInfo?.role !== 'admin',
   });
 
-  const [updateRole] = useMutation(UPGRADE_TO_SELLER, {
-    // This tells Apollo to automatically refresh the user list after a successful change!
+  const [updateRole] = useMutation(UPDATE_USER_ROLE, {
     refetchQueries: [{ query: GET_ALL_USERS }], 
   });
 
@@ -110,7 +106,7 @@ const AdminDashboard = () => {
                               background: user.role === 'admin' ? '#ffebee' : user.role === 'seller' ? '#e8f5e9' : '#e3f2fd',
                               color: user.role === 'admin' ? '#c62828' : user.role === 'seller' ? '#2e7d32' : '#1565c0'
                             }}>
-                              {user.role.toUpperCase()}
+                              {user.role?.toUpperCase()}
                             </span>
                           </td>
                           <td style={{ padding: '12px' }}>

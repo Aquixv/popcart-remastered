@@ -42,7 +42,6 @@ mutation UpgradeToSeller {
     name
     email
     role
-    avatar
   }
 }`
 
