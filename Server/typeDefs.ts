@@ -101,7 +101,7 @@ type ShippingAddress {
     getSellerRevenue: RevenueStats
     getAllUsers: [User!]
     getUserProfile: User!
-  getFavorites: [Product!]
+  getFavorites: [Product]
   }
 
   type Mutation {

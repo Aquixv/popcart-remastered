@@ -8,7 +8,7 @@ import { GET_FAVORITES } from '../graphql/queries';
 import { UserInfo } from './types';
 
 interface GetClientResponse {
-      GetFavorites: Product[];
+      getFavorites: Product[];
     }
 
 
@@ -42,7 +42,7 @@ const Favorites = () => {
                 },
                 fetchPolicy: 'network-only'
               })
-          setFavoriteProducts(data?.GetFavorites || []);
+          setFavoriteProducts(data?.getFavorites || []);
       } catch (error) {
         console.error("Failed to load wishlist", error);
       } finally {

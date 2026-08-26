@@ -180,14 +180,30 @@ export const GET_ALL_USERS = gql`
 
 export const GET_FAVORITES = gql`
   query GetFavorites {
-    getFavorites {
-      _id
-      title
-      price
-      thumbnail
+  getFavorites {
+    _id
+    title
+    price
+    category
+    stock
+    thumbnail
+    brand
+    rating
+    numReviews
+    reviews {
+      name
       rating
+      comment
+    }
+    discountPercentage
+    originalPrice
+    user {
+      name
+      email
+      role
     }
   }
+}
 `;
 export const GET_SELLER_REVENUE = gql `
 query GetSellerRevenue {
