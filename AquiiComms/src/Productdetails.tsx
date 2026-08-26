@@ -174,7 +174,7 @@ const ProductDetails = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', margin: '30px 0' }}>
           {product.reviews && product.reviews.map((review, index) => {
             
-            const displayName = review.name || review.reviewerName || 'Anonymous User';
+            const displayName = review.name || review.reviewerName || 'Anonymous';
             const displayDate = review.createdAt || review.date;
             const formattedDate = new Date(
   typeof displayDate === 'string' && displayDate.includes('T') 

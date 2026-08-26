@@ -5,6 +5,8 @@ export interface IReview {
   rating: number;
   comment: string;
   reviewerName:string;
+  reviewerEmail:string;
+  date:string
 }
 
 export interface IProduct extends Document {
@@ -42,6 +44,15 @@ const reviewSchema = new Schema<IReview>(
       type: String,
       required: true,
     },
+    reviewerName: {
+      type: String,
+    },
+    reviewerEmail: {
+      type: String,
+    },
+    date: {
+      type: String,
+    }
   },
   {
     timestamps: true, 
