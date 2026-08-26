@@ -36,8 +36,10 @@ export const addToCart = async (_: any, args: { productId: string; quantity: num
         cart.items.push({ product: productId as any, quantity });
       }
       
-      cart = await cart.save();
-      return cart;
+      await cart.save();
+const populatedCart = await Cart.findById(cart._id).populate('items.product');
+
+return populatedCart;
 
     } else {
       const newCart = await Cart.create({
@@ -85,7 +87,9 @@ export const removeFromCart = async (_: any, args: { productId: string }, contex
     cart.items = cart.items.filter((item: any) => item.product.toString() !== productId);
 
     await cart.save();
-    return cart;
+const populatedCart = await Cart.findById(cart._id).populate('items.product');
+
+return populatedCart;
 
   } catch (error) {
     console.error("Remove from cart error:", error);
@@ -116,7 +120,10 @@ export const decreaseQuantity = async (_: any, args: { productId: string }, cont
       }
       
       await cart.save();
-      return cart;
+
+const populatedCart = await Cart.findById(cart._id).populate('items.product');
+
+return populatedCart;
     }
 
     return cart;
