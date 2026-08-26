@@ -21,7 +21,6 @@ const ProductDetails = () => {
   const [reviewSuccess, setReviewSuccess] = useState('');
   
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
-
   const fetchProduct = async () => {
     try {
       const { data } = await client.query<GetSingleProductResponse>({
@@ -174,10 +173,14 @@ const ProductDetails = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', margin: '30px 0' }}>
           {product.reviews && product.reviews.map((review, index) => {
-  
-            const displayName = review.name || review.reviewerName || "Anonymous Shopper";
+            
+            const displayName = review.name || review.reviewerName || 'Anonymous User';
             const displayDate = review.createdAt || review.date;
-
+            const formattedDate = new Date(
+  typeof displayDate === 'string' && displayDate.includes('T') 
+    ? displayDate 
+    : Number(displayDate)
+).toLocaleDateString();
             return (
               <div key={review._id || index} style={{ padding: '15px', border: '1px solid #eee', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -186,7 +189,7 @@ const ProductDetails = () => {
                 </div>
                 <p style={{ margin: 0, color: '#555' }}>{review.comment}</p>
                 <small style={{ color: '#999', display: 'block', marginTop: '10px' }}>
-                  {displayDate?.substring(0, 10) || "Recently"}
+                  {formattedDate?.substring(0, 10) || "Recently"}
                 </small>
               </div>
             );

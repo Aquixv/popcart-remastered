@@ -77,11 +77,13 @@ export const createProductReview = async (_: any, args: { productId: string, rat
     }
 
     const review = {
-      name: context.user.name,
-      rating: Number(rating),
-      comment,
-      user: context.user._id,
-    };
+  name: context.user.name,
+  rating: Number(rating),
+  comment,
+  user: context.user._id,
+  date: new Date().toISOString(), 
+  createdAt: new Date(), 
+};
     
     product.reviews.push(review as any);
     

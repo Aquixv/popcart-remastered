@@ -4,6 +4,7 @@ export interface IReview {
   name?: string;
   rating: number;
   comment: string;
+  reviewerName:string;
 }
 
 export interface IProduct extends Document {

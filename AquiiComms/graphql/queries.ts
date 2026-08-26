@@ -90,6 +90,9 @@ query GetSingleProduct($productId: ID!) {
       name
       rating
       comment
+      reviewerName
+      date
+      createdAt
     }
   }
 }

@@ -22,6 +22,9 @@ type Review {
   rating: Float!
   comment: String!
   user: User   
+  reviewerName: String
+  date: String
+  createdAt: String
 }
 type ShippingAddress {
   address: String
