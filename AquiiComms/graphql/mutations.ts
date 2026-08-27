@@ -164,7 +164,7 @@ export const CREATE_ORDER = gql`
     $shippingPrice: Float!
     $itemsPrice: Float!
     $totalPrice: Float!
-    $orderItems: [OrderItemInput!]! 
+    $orderItems: [OrderItem!]! 
   ) {
     createOrder(
       shippingAddress: $shippingAddress

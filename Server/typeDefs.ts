@@ -87,9 +87,11 @@ input OrderItemInput {
   }
 
   type OrderItem {
-    product: Product!
-    quantity: Int!
-    price: Float!
+    name: String!
+  quantity: Int!
+  image: String
+  price: Float!
+  product: Product
   }
   type Order {
     _id: ID!
