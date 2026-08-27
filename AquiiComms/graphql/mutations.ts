@@ -157,39 +157,35 @@ mutation DecreaseQuantity($productId: ID!) {
 }`
 
 export const CREATE_ORDER = gql`
-mutation CreateOrder($shippingAddress: String!, $paymentMethod: String!, $itemsPrice: Float!, $shippingPrice: Float!, $totalPrice: Float!, $paymentResult: String) {
-  createOrder(shippingAddress: $shippingAddress, paymentMethod: $paymentMethod, itemsPrice: $itemsPrice, shippingPrice: $shippingPrice, totalPrice: $totalPrice, paymentResult: $paymentResult) {
-    deliveredAt
-    isDelivered
-    paidAt
-    isPaid
-    totalPrice
-    shippingPrice
-    itemsPrice
-    paymentMethod
-    shippingAddress
-    orderItems {
-      product {
-        numReviews
-        rating
-        thumbnail
-        stock
-        description
-        price
-        title
-        _id
-      }
-      price
-      quantity
-    }
-    _id
-    user {
-      name
+  mutation CreateOrder(
+    $shippingAddress: ShippingAddressInput! 
+    $paymentResult: PaymentResultInput
+    $paymentMethod: String!
+    $shippingPrice: Float!
+    $itemsPrice: Float!
+    $totalPrice: Float!
+    $orderItems: [OrderItemInput!]! 
+  ) {
+    createOrder(
+      shippingAddress: $shippingAddress
+      paymentResult: $paymentResult
+      paymentMethod: $paymentMethod
+      shippingPrice: $shippingPrice
+      itemsPrice: $itemsPrice
+      totalPrice: $totalPrice
+      orderItems: $orderItems
+    ) {
       _id
-      avatar
+      isPaid
+      paidAt
+      # Remember to ask for the subfields back!
+      shippingAddress {
+        address
+        city
+      }
     }
   }
-}`
+`;
 export const UPDATE_USER_ROLE = gql`
   mutation UpdateUserRole($id: ID!, $role: String!) {
     updateUserRole(id: $id, role: $role) {

@@ -40,8 +40,7 @@ const Checkout = () => {
       console.log("💳 Paystack Success!", response);
       
      try {
-      // 1. Format the items exactly as before
-      const formattedItems = cart.items
+        const formattedItems = cart.items
         .filter(item => item && item.product && item.product._id)
         .map(item => ({
           name: item.product.title, 
@@ -52,23 +51,24 @@ const Checkout = () => {
         }));
         
       const { data } = await client.mutate({
-        mutation: CREATE_ORDER, 
-        variables: {
-          orderItems: formattedItems,
-          shippingAddress,
-          paymentResult: {
-            id: response.reference,
-            status: response.status,
-            email_address: userInfo?.email
-          },
-          itemsPrice: totalAmount,
-          totalPrice: totalAmount
-        },
-        context: {
-          headers: { Authorization: `Bearer ${userInfo?.token}` }
-        }
-      });
-
+  mutation: CREATE_ORDER, 
+  variables: {
+    orderItems: formattedItems,
+    shippingAddress,
+    paymentMethod: "Paystack", 
+    paymentResult: {
+      id: response.reference,
+      status: response.status,
+      email_address: userInfo?.email
+    },
+    itemsPrice: totalAmount,
+    shippingPrice: 0.00,
+    totalPrice: totalAmount
+  },
+  context: {
+    headers: { Authorization: `Bearer ${userInfo?.token}` }
+  }
+});
 
       // 4. Success block!
       console.log("✅ Order saved to database!");

@@ -27,12 +27,30 @@ type Review {
   createdAt: String
 }
 type ShippingAddress {
-  address: String
-  city: String
-  postalCode: String
-  country: String
+  address: String!
+  city: String!
+  postalCode: String!
+  country: String!
 }
-  
+input ShippingAddressInput {
+  address: String!
+  city: String!
+  postalCode: String!
+  country: String!
+}
+
+input PaymentResultInput {
+  id: String
+  status: String
+  email_address: String
+}
+input OrderItemInput {
+  name: String!
+  quantity: Int!
+  image: String
+  price: Float!
+  product: ID!
+}
   type Product {
     _id: ID!
     title: String!
@@ -75,6 +93,8 @@ type ShippingAddress {
   }
   type Order {
     _id: ID!
+  status: String
+  email: String
     user: User! 
     orderItems: [OrderItem!]!
     paymentMethod: String!
@@ -127,12 +147,13 @@ type ShippingAddress {
     decreaseQuantity(productId: ID!): Cart
     
     createOrder(
-      shippingAddress: String!, 
+      orderItems: [OrderItemInput!]!
+    shippingAddress: ShippingAddressInput!,
       paymentMethod: String!, 
       itemsPrice: Float!, 
       shippingPrice: Float!, 
       totalPrice: Float!, 
-      paymentResult: String
+      paymentResult: PaymentResultInput
     ): Order
   }
 `;
