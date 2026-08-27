@@ -12,12 +12,21 @@ const ProfilePicUpload = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file)); 
+  const file = e.target.files?.[0];
+  
+  if (file) {
+    if (file.size > 5242880) {
+      alert("Image is too large! Please select a file smaller than 5MB.");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return; 
     }
-  };
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file)); 
+  }
+};
 
   const handleUpload = async () => {
     if (!selectedFile) return;
