@@ -1,5 +1,5 @@
 import { registerUser, loginUser, forgotPassword, resetPassword, upgradeToSeller } from './controllers/Authcontroller';
-import { getProducts, getSingleProduct, getProductsByCategory, createProductReview, getAdminProducts } from './controllers/Productcontroller';
+import { getProducts, getSingleProduct, getProductsByCategory, createProductReview, getAdminProducts, getSellerProducts } from './controllers/Productcontroller';
 import { getCart, addToCart, removeFromCart, decreaseQuantity } from './controllers/Cartcontroller';
 import { getMyOrders, createOrder, getSellerRevenue } from './controllers/Ordercontroller';
 import { toggleFavorite, getFavorites, getAllUsers, updateUserRole, getUserProfile, } from './controllers/Usercontroller';
@@ -10,7 +10,7 @@ export const resolvers = {
     getAllUsers: getAllUsers,
     getFavorites: getFavorites,
     getUserProfile: getUserProfile,
-    
+    getSellerProducts:getSellerProducts,
     // PRODUCTS FOR NOTING
     getProducts: getProducts,
     getSingleProduct: getSingleProduct,

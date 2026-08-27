@@ -123,6 +123,7 @@ input OrderItemInput {
     getAdminProducts: [Product]
     getCart: Cart
     getMyOrders: [Order!]
+    getSellerProducts: [Product!]
     getSellerRevenue: RevenueStats
     getAllUsers: [User!]
     getUserProfile: User!

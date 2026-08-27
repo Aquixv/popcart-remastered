@@ -8,8 +8,8 @@ import { GET_SELLER_PRODUCTS, GET_USER_PROFILE, GET_SELLER_REVENUE } from '../gr
 import { UPDATE_PRODUCT, DELETE_PRODUCT, UPGRADE_TO_SELLER } from '../graphql/mutations';
 import type { Product, UserProfile, UserInfo } from './types';
 
-interface GetProfileQuery {
-  getProfile: UserProfile;
+interface getUserProfileQuery {
+  getUserProfile: UserProfile;
 }
 
 interface UpgradeSellerMutation {
@@ -40,7 +40,11 @@ const Seller = () => {
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;
 
-  const { data: profileData, error: profileError } = useQuery<GetProfileQuery>(GET_USER_PROFILE);
+  const { data: profileData, error: profileError, loading: profileLoading } = useQuery<getUserProfileQuery>(GET_USER_PROFILE, {
+    context: {
+      headers: { Authorization: `Bearer ${userInfo?.token}` }
+    }
+  });
 
   useEffect(() => {
     if (profileError) {
@@ -50,13 +54,20 @@ const Seller = () => {
   }, [profileError, navigate]);
 
   const { data: productsData, loading: loadingProducts } = useQuery<GetProductsQuery>(GET_SELLER_PRODUCTS, {
-    skip: activeTab !== 'myProducts'
+    skip: activeTab !== 'myProducts',
+    context: {
+      headers: { Authorization: `Bearer ${userInfo?.token}` }
+    },
+    fetchPolicy: 'network-only' 
   });
 
   const { data: analyticsData, loading: loadingAnalytics } = useQuery<GetRevenueQuery>(GET_SELLER_REVENUE, {
-    skip: activeTab !== 'analytics'
+    skip: activeTab !== 'analytics',
+    context: {
+      headers: { Authorization: `Bearer ${userInfo?.token}` }
+    }
   });
-
+  
   const [updateProduct] = useMutation(UPDATE_PRODUCT);
   
   const [deleteProduct] = useMutation(DELETE_PRODUCT, {
@@ -64,7 +75,7 @@ const Seller = () => {
   });
   const [upgradeToSeller, { loading: isUpgrading }] = useMutation<UpgradeSellerMutation>(UPGRADE_TO_SELLER);
 
-  const profile = profileData?.getProfile;
+  const profile = profileData?.getUserProfile;
   const myProducts: Product[] = productsData?.getSellerProducts || [];
   const revenueData = analyticsData?.getSellerRevenue || { totalRevenue: 0, totalItemsSold: 0 };
 

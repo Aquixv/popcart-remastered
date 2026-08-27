@@ -32,15 +32,21 @@ export const GET_PRODUCTS = gql `query GetProducts($limit: Int, $skip: Int, $key
 `
 export const GET_SELLER_PRODUCTS = gql`
   query GetSellerProducts {
-    getSellerProducts {
-      _id
-      title
-      price
-      stock
-      sold
-      thumbnail
-    }
+  getSellerProducts {
+    _id
+    title
+    price
+    description
+    category
+    stock
+    thumbnail
+    brand
+    numReviews
+    rating
+    discountPercentage
+    originalPrice
   }
+}
 `;
 
 export const GET_PRODUCTS_BY_CATEGORY = gql`
