@@ -249,4 +249,3 @@ const ProductDetails = () => {
 };
 
 export default ProductDetails;
-//filler smh
