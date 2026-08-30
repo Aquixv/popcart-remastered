@@ -220,7 +220,7 @@ export const createProduct = async (req: Request | any, res: Response): Promise<
       category,
       stock,
       thumbnail: result.secure_url, 
-      brand: "Independent Seller", 
+      brand: req.user?.name || "Independent Seller", 
       rating: 0,
       numReviews: 0,
       discountPercentage: 0

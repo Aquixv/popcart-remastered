@@ -14,7 +14,8 @@ import {upload, cloudinary } from './cloudinary';
 import mongoose from 'mongoose';
 import User from './models/Schema';
 import * as jwt from 'jsonwebtoken'
-import router from './routes/routes';
+import Userrouter from './routes/routes';
+import Productrouter from './routes/Productroutes';
 import configurePassport from './config/Passport';
 import authRoutes from './routes/routes'
 import { PassportStatic } from 'passport';
@@ -46,7 +47,7 @@ app.set('views', path.join(__dirname, 'views'));
 configurePassport(passport);
 app.use(passport.initialize());
 app.use('/api', authRoutes);
-app.use('/api/users/auth', router);
+app.use('/api/users/auth', Userrouter);
 
 const startApolloServer = async () => {
     const server = new ApolloServer({
@@ -76,6 +77,7 @@ const startApolloServer = async () => {
             }
         })
     );
+app.use('/api/products', Productrouter);
 
     app.post('/users/auth/profile/upload', upload.single('avatar'), async (req, res) => {
   try {
