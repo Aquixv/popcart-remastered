@@ -39,7 +39,7 @@ export const forgotPassword = async (_:any, args:{email:string, }, context:any) 
       user.resetPasswordExpire = undefined;
       await user.save();
     }
-    return ("Email could not be sent");
+    throw new Error(error as string || "Email could not be sent");
   }
 };
 

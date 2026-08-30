@@ -17,6 +17,6 @@ router.get('/category/:category', getProductsByCategory as any);
 router.get('/:id', getSingleProduct as any);
 router.post('/:id/reviews', protect as any, createProductReview as any);
 router.post('/', protect as any, isSeller as any, upload.single('image'), createProduct as any);
-router.delete('/:id', protect as any, isSeller as any, deleteProduct as any);
+// router.delete('/:id', protect as any, isSeller as any, deleteProduct as any);
 
 export default router;

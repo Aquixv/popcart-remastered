@@ -21,6 +21,7 @@ import authRoutes from './routes/routes'
 import { PassportStatic } from 'passport';
 
 import passport from 'passport'
+import sendEmail from './util/email';
 
 
 setServers(['8.8.8.8', '1.1.1.1']);
@@ -78,7 +79,7 @@ const startApolloServer = async () => {
         })
     );
 app.use('/api/products', Productrouter);
-
+app.use('/api/email', sendEmail);
     app.post('/users/auth/profile/upload', upload.single('avatar'), async (req, res) => {
   try {
     if (!req.file) {
