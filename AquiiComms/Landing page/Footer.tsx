@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import './Footer.css';
 import logo from '/default.png';
 
@@ -6,51 +6,47 @@ const Footer = () => {
   return (
     <footer id="footer-section" className="main-footer">
       <div className="footer-container">
+        
+        {/* Left: Brand / Logo */}
         <div className="footer-brand">
-          <img src={logo} alt="Popcart" />
-          <p>The future of shopping, delivered to your screen. Premium quality, sustainable choices.</p>
-          <div className="payment-methods">
-            <h4>Accepted Payments</h4>
-            <div className="payment-grid">
-              <div className="payment-card"><img src="https://cdn.prod.website-files.com/63e857eaeaf853471d5335ff/63eb1ce82d440b7ab84a993f_visa.png" loading="lazy" alt=""/></div>
-              <div className="payment-card"><img src="https://cdn.prod.website-files.com/63e857eaeaf853471d5335ff/63eb1ce8816711ebecac46d8_stripe.png" loading="lazy" alt=""/></div>
-              <div className="payment-card"><img src="https://cdn.prod.website-files.com/63e857eaeaf853471d5335ff/63eb1ce7c4510cf9a55828a0_PayPal.png" loading="lazy" alt=""/></div>
-              <div className="payment-card"><img src="https://cdn.prod.website-files.com/63e857eaeaf853471d5335ff/63e8c4e4707380264b25e680_ApplePay.png" loading="lazy" alt=""/></div>
-            </div>
-          </div>
+          <img src={logo} alt="Popcart" className="footer-logo" />
         </div>
 
+        {/* Middle: Minimalist Link Columns */}
         <div className="footer-links">
-          <div className="link-group">
-            <h5>Department</h5>
-            <ul><li>Fashion</li><li>Education</li><li>Tech</li></ul>
-          </div>
-          <div className="link-group">
-            <h5>About Us</h5>
-            <ul><li>Careers</li><li>News & Blog</li><li>Help</li></ul>
-          </div>
-          <div className="link-group">
-            <h5>Services</h5>
-            <ul><li>Gift Card</li><li>Mobile App</li><li>Shipping</li></ul>
-          </div>
-          <div className="link-group">
-            <h5>Help</h5>
-            <ul><li>Shopcart Help</li><li>Returns</li><li>Track Orders</li></ul>
+          <ul>
+            <li>Fashion</li>
+            <li>Books</li>
+            <li>Gadgets</li>
+            <li>Tech</li>
+          </ul>
+          <ul>
+            <li>Legal warning</li>
+            <li>Copyright claims</li>
+            <li>Right to Representation</li>
+          </ul>
+          <ul>
+            <li>Return policy</li>
+            <li>Cookies policy</li>
+            <li>Privacy policy</li>
+          </ul>
+        </div>
+
+        {/* Right: Copyright & Socials */}
+        <div className="footer-right">
+          <p className="copyright">Popcart. All rights reserved</p>
+          <div className="social-icons">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            {/* X / Twitter */}
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4l11.73 16h5L9 4z"></path></svg>
+            {/* Facebook */}
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
           </div>
         </div>
-      </div>
 
-      <hr className="footer-divider" />
-
-      <div className="footer-bottom">
-        <p>© 2026 Popcart. All Rights Reserved.</p>
-        <div className="legal-links">
-          <span>Terms of Service</span>
-          <span>Privacy Policy</span>
-        </div>
       </div>
     </footer>
   );
 };
 
-export default Footer
+export default Footer;

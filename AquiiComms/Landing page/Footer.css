@@ -1,127 +1,103 @@
+/* Footer.css */
+
 .main-footer {
-  padding: 60px 5% 20px;
-  background: #ffffff;
-  border-top: 1px solid #f0f0f0;
+  padding: 40px 5%; /* Drastically reduced vertical padding */
+  background: #e5e5eb; /* Matched to the slightly cooler/darker gray in your inspiration */
+  border-top: 1px solid #d1d5db;
+  color: #4b5563;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 .footer-container {
   display: flex;
   justify-content: space-between;
-  flex-wrap: wrap; 
-  gap: 40px;
-  margin-bottom: 40px;
+  align-items: center; /* This centers everything horizontally! */
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 20px;
 }
 
 .footer-brand {
-  flex: 1;
-  min-width: 250px;
+  flex: 0 0 auto;
 }
-.footer-divider{
-background-color: #666;
-}
-.footer-brand img {
-  width: 150px; 
+
+.footer-logo {
+  width: 100px; /* Shrunk the logo significantly to fit the low-profile look */
   height: auto;
-  margin-bottom: 20px;
 }
 
 .footer-links {
-  flex: 2;
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-.footer-divider{
-  color: #666;
-}
-.link-group h5 {
-  font-size: 1.1rem;
-  margin-bottom: 15px;
-  font-weight: 400;
-  color:#666;
+  gap: 80px; /* Space between the three columns */
+  flex: 1;
+  justify-content: center; /* Pushes the links to the exact center of the footer */
 }
 
-.link-group ul {
+.footer-links ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Tightened up the line height */
 }
 
-.link-group ul li {
-  margin-bottom: 10px;
-  color: #666;
+.footer-links ul li {
+  color: #6b7280;
+  font-size: 0.85rem; /* Smaller font size to match the minimal aesthetic */
   cursor: pointer;
+  transition: color 0.2s ease;
 }
 
-.payment-grid {
+.footer-links ul li:hover {
+  color: #111827;
+}
+
+.footer-right {
   display: flex;
-  gap: 8px;
-  margin-top: 15px;
+  flex-direction: column;
+  align-items: flex-end; /* Aligns text and icons to the right edge */
+  gap: 15px;
+  flex: 0 0 auto;
 }
 
-.payment-card {
-  width: 55px; 
-  height: 32px;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
+.copyright {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.social-icons {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: white;
-  padding: 4px;
+  gap: 15px;
 }
 
-.payment-card img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain; 
-  margin-bottom: -3px;
+.social-icons svg {
+  cursor: pointer;
+  color: #111827;
+  transition: transform 0.2s ease;
 }
-.footer-bottom {
-    display: flex;
-    flex-direction: row;
-    text-align: center;
-    gap: 20px;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-  }
-  .legal-links{
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    justify-content: space-around;
-    bottom: 5vh;
-  }
-    .payment-methods h4{
-  margin-top: 2vh;
-  color: #666;
-  font-weight: 800;
-  }
 
-@media (max-width: 768px) {
-  .footer-links {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
+.social-icons svg:hover {
+  transform: translateY(-2px); /* Slight hover pop */
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
   }
   
-  .footer-bottom {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    gap: 20px;
+  .footer-links {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 40px;
   }
-  .legal-links{
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    justify-content: space-evenly;
-  }
-    .payment-methods h4{
-  margin-top: 5vh;
-  color: #666;
-  font-weight: 500;
+
+  .footer-right {
+    align-items: flex-start;
   }
 }
