@@ -39,3 +39,16 @@ font-weight: bold !important;
 cursor: pointer !important;
 transition : all 0.3s ease !important;
 }
+.product-grid::-webkit-scrollbar {
+  display: none;
+}
+.product-grid {
+  /* Step 1: Ensure the container is allowed to scroll */
+  overflow: auto; 
+  
+  /* Step 2: Hide scrollbar for Firefox */
+  scrollbar-width: none; 
+  
+  /* Step 3: Hide scrollbar for IE and older Edge */
+  -ms-overflow-style: none; 
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import { useCart } from '../src/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { Product } from './types';
+import './Cart.css'
 
 const Cart = () => {
   const { cart, removeFromCart, addToCart, decreaseQuantity } = useCart();
@@ -18,10 +19,12 @@ const Cart = () => {
 
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '50px' }}>
-        <h2>Your Cart is Empty</h2>
-        <button style={{ background: '#4CAF50', color: 'white', border: 'none', padding: '15px 30px', fontSize: '18px', borderRadius: '5px', cursor: 'pointer' }} onClick={() => navigate('/')}>Continue Shopping</button>
-      </div>
+      <div className="empty-cart-container">
+  <h2>Your Cart is Empty</h2>
+  <button className="primary-action-btn" onClick={() => navigate('/')}>
+    Continue Shopping
+  </button>
+</div>
     );
   }
 
@@ -88,12 +91,9 @@ const Cart = () => {
 
       <div style={{ marginTop: '30px', textAlign: 'right' }}>
         <h2>Total: ${calculateTotal()}</h2>
-        <button 
-          style={{ background: '#4CAF50', color: 'white', border: 'none', padding: '15px 30px', fontSize: '18px', borderRadius: '5px', cursor: 'pointer' }}
-          onClick={() => navigate('/checkout')}
-        >
-          Proceed to Checkout
-        </button>
+        <button className="primary-action-btn" onClick={() => navigate('/checkout')}>
+  Proceed to Checkout
+</button>
       </div>
     </div>
   );

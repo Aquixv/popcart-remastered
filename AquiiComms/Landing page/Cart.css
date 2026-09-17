@@ -1,0 +1,37 @@
+.empty-cart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh; /* Keeps it centered vertically in the viewport */
+  padding: 40px 20px;
+  color: #4b5563;
+}
+
+.empty-cart-container h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 24px;
+}
+
+.primary-action-btn {
+  background-color: #111827; /* Dark, modern aesthetic */
+  color: #ffffff;
+  border: none;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.primary-action-btn:hover {
+  background-color: #374151; /* Lighter hover state */
+}
+
+.primary-action-btn:active {
+  transform: scale(0.98); /* Satisfying click compression */
+}
