@@ -6,11 +6,12 @@
   top: 0;
   left: 0; 
   z-index: 1000;
-  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
 }
+
 .nav-container {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* The magic layout fix */
   align-items: center;
   max-width: 1400px; 
   width: 100%;     
@@ -20,47 +21,43 @@
 }
 
 .logo-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  margin-left: -35px;
+  justify-self: start;
 }
-.logo-section img{
-width: 10vh;
-height: 8vh;
+
+.logo-section img {
+  height: 50px;
+  width: auto;
 }
+
 .nav-links {
   display: flex;
-  flex: 2;
-  justify-content: center;
+  justify-self: center; /* Locks links dead center */
   align-items: center;
-  gap: 2vw; 
+  gap: 25px; 
 }
-.nav-links a{
-text-decoration: none;
-color: black;
+
+.nav-links a {
+  text-decoration: none;
+  color: #111827;
 }
+
 .dropdown {
   position: relative;
 }
 
-.dropbtn {
+.dropbtn, .menu {
   background: none;
   border: none;
-  font-weight: 600;
+  font-weight: 500;
+  color: #4b5563;
   cursor: pointer;
   font-family: inherit;
-  font-size: 14px !important;
+  font-size: 0.95rem !important;
+  transition: color 0.2s ease;
 }
 
-.menu {
-  background: none;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 12px !important;
+.dropbtn:hover, .menu:hover {
+  color: #111827;
 }
 
 .dropdown-content {
@@ -70,104 +67,118 @@ color: black;
   left: 0;
   background-color: #fff;
   min-width: 200px;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.08);
   padding: 10px 0;
   border-radius: 8px;
+  border: 1px solid #f3f4f6;
   z-index: 1001;
 }
-.cart-icon {
-  background: inherit;
-  color: #fff;
-  padding: 8px 18px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  transition: transform 0.2s;
-  border: .5px solid transparent;
-}
-.cart-icon:hover { transform: scale(1.05); }
-.cart-count{
-color: #000;
-}
-.account-btn {
-  background: none;
-  border: none;
-  font-weight: 700;
-  color: #222;
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.search-bar input {
-  padding: 10px 20px;
-  width: 200px;
-  border: 1px solid #e0e0e0;
-  border-radius: 25px;
-  background: #f8f8f8;
 
-}
-.search-bar input:focus {
-  width: 250px;
-  border-color: transparent !important;
-  background: #fff;
-  border: none !important;
-}
-.account-icon{
-width: 50px;
-height: 25px;
-}
 .dropdown-content a {
   display: block;
   padding: 10px 20px;
-  color: #333;
+  color: #4b5563;
   text-decoration: none;
+  font-size: 0.9rem;
 }
-.form{
-display: flex;
-justify-content: space-between;
+
+.dropdown-content a:hover {
+  background-color: #f9fafb;
+  color: #111827;
 }
-.button8{
-background-color: transparent;
-border: none;
-}
-.img8{
-margin-left: 10px;
-}
-/* .dropdown:hover .dropdown-content {
-  display: block; 
-} */
 
 .nav-actions {
-  flex: 1;
+  justify-self: end;
   display: flex;
-  justify-content: flex-end;
-  gap: 20px;
+  align-items: center;
+  gap: 24px;
 }
-.menu-toggle {
-  display: none;
-}
-.side-actions {
-  display: none;
-}
-.mobile-search-overlay {
-  display: none;
 
+/* Search Bar Styling */
+.search-bar form {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
+
+.search-bar input {
+  padding: 10px 40px 10px 16px; /* Room for the absolute icon */
+  width: 180px;
+  border: 1px solid #e5e7eb;
+  border-radius: 25px;
+  background: #f9fafb;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+  width: 240px;
+  background: #fff;
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Icons & Badges */
+.cart-icon, .account-btn {
+  background: none;
+  border: none;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+/* .cart-icon{
+  right: -10%;
+}
+.account-btn{
+  right: 100%;
+} */
+.cart-icon:hover, .account-btn:hover {
+  transform: translateY(-2px);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: #ef4444; /* Premium alert red */
+  color: white;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 2px solid #ffffff; /* Cuts it out from the background */
+}
+
+/* Underline Animation */
 @media (min-width: 769px) {
   .dropdown:hover .dropdown-content {
     display: block; 
   }
+  
   .nav-links a.menu, .dropbtn {
     position: relative;
-    color: #555;
-    transition: color 0.3s ease;
-  }
-  .nav-links a.menu:hover, .dropdown:hover .dropbtn {
-    color: #000;
   }
 
   .nav-links a.menu::after, .dropbtn::after {
@@ -175,9 +186,9 @@ margin-left: 10px;
     position: absolute;
     width: 0;
     height: 2px;
-    bottom: -5px; 
+    bottom: -6px; 
     left: 0;
-    background-color: #000;
+    background-color: #111827;
     transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
   }
 
@@ -185,54 +196,36 @@ margin-left: 10px;
     width: 100%;
   }
 }
+
+/* Mobile Settings */
+.menu-toggle, .side-actions, .mobile-search-overlay {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  .cart-count{
-  color: #000;
-  gap: 5px;
-  text-align: center;
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  }
-  .cart-count img{
-  height: 4vh;
-  width: 4vw;
-  }
-  .close{
-  background-color: #fff;
-  color: #000;
-  border: transparent;
-  font-size: 20px;
-  margin-left: 20px;
-  margin-top: -5px;
-  }
   .desktop-only {
     display: none !important;
   }
+  
   .nav-container {
-    display: flex;
+    display: flex; /* Revert to flex for mobile spacing */
     justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    height: 80px;
-  }
-
-  .logo-section {
-    margin-left: 0;
   }
 
   .logo-section img {
-    height: 10vh;
+    height: 40px;
   }
 
   .menu-toggle {
     display: block;
-    font-size: 2rem;
+    font-size: 1.5rem;
     cursor: pointer;
     background: none;
     border: none;
     z-index: 2001;
+    color: #111827;
   }
+
   .nav-links {
     position: fixed;
     top: 0;
@@ -242,10 +235,11 @@ margin-left: 10px;
     background: white;
     flex-direction: column;
     justify-content: flex-start;
-    padding: 80px 20px 20px;
+    align-items: flex-start;
+    padding: 80px 24px 20px;
     transition: 0.3s ease-in-out;
     z-index: 2000;
-    gap: 5vh;
+    gap: 24px;
   }
 
   .nav-links.active {
@@ -255,28 +249,26 @@ margin-left: 10px;
 
   .side-actions {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     flex-direction: column;
-    gap: 15px;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
     width: 100%;
   }
 
-  .side-actions button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px;
-    background: #f8f8f8;
-    border: 1px solid #eee;
+  .side-actions button, .side-actions a {
+    justify-content: flex-start;
+    padding: 12px 16px;
+    /* background: #f9fafb; */
     border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
+    color: #111827;
   }
-
+.mobile-search-trigger{
+  background: none;
+  border: none;
+}
   .mobile-search-overlay {
     position: absolute;
     top: -100px;
@@ -299,10 +291,17 @@ margin-left: 10px;
 
   .mobile-search-overlay input {
     flex: 1;
-    padding: 10px 20px;
+    padding: 12px 20px;
     border-radius: 20px;
-    border: 1px solid #ddd;
-    margin-right: 10px;
+    border: 1px solid #d1d5db;
+    margin-right: 12px;
+  }
+
+  .close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #4b5563;
   }
 
   .sidebar-backdrop {
@@ -322,22 +321,67 @@ margin-left: 10px;
     opacity: 1;
     pointer-events: all;
   }
-  .dropdown-content {
-  position: static !important;
-  box-shadow: none !important;
-  display: none;
-  flex-direction: column;
-  padding-left: 20px; 
-  margin-top: 10px;
-  border-left: 2px solid #eee;
-}
+  .mobile-search-overlay .form {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+  }
 
-.dropdown-content.show {
-  display: flex !important;
-}
+  .mobile-search-overlay input {
+    width: 100%; /* Forces the input to fill the form */
+    padding: 12px 45px 12px 20px; /* Extra right padding prevents text from hiding under the icon */
+    border-radius: 20px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    margin-right: 0;
+  }
 
-.dropdown-content a {
-  padding: 12px 0;
-  font-size: 1.1rem;
-}
+  /* Locks the icon inside the right edge of the input */
+  .mobile-search-overlay .search-btn {
+    position: absolute;
+    right: 15px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    padding: 0;
+  }
+
+  /* The out-of-bounds click detector */
+  .search-backdrop {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 80px);
+    z-index: 1499;
+    background: rgba(0,0,0,0.1); /* Subtle darkening to focus the user on the search */
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+  }
+
+  .search-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(17, 24, 39, 0.4); /* Premium dark tint over the app */
+    z-index: 1999; /* Exactly 1 layer below the sidebar (which should be 2000) */
+    opacity: 0;
+    pointer-events: none; /* Invisible and unclickable when closed */
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: all; /* Becomes a solid invisible wall that catches your click! */
+  }
 }

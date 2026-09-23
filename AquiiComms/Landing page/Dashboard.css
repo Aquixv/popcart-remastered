@@ -1,0 +1,343 @@
+/* Dashboard.css */
+.dashboard-layout {
+  display: flex;
+  gap: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: flex-start;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Sidebar Styling */
+.dashboard-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.025);
+  border: 1px solid #e5e7eb;
+}
+
+.sidebar-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 24px;
+}
+
+/* Forces the ProfilePicUpload component to stay centered and contained */
+.profile-upload-bounds {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.sidebar-profile h3 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.sidebar-profile p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+  word-break: break-all;
+}
+
+/* Navigation Tabs */
+.dashboard-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #4b5563;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.tab-btn.active {
+  background: #111827;
+  color: white;
+}
+
+.danger-btn { color: #ef4444; margin-top: 16px; }
+.danger-btn:hover { background: #fef2f2; color: #dc2626; }
+
+/* Content Area */
+.dashboard-content {
+  flex: 1;
+  min-width: 0; 
+}
+
+.section-title {
+  margin-top: 0;
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* iOS/Vercel Style Settings Cards */
+.settings-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.settings-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.role-badge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Order Cards */
+.orders-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 20px;
+}
+
+.order-id {
+  display: block;
+  font-weight: 600;
+  color: #111827;
+  font-size: 1.05rem;
+}
+
+.order-date {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 4px;
+  display: block;
+}
+
+.order-total {
+  display: block;
+  font-weight: 700;
+  color: #111827;
+  font-size: 1.1rem;
+  text-align: right;
+}
+
+.status-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.paid { background: #ecfdf5; color: #059669; }
+.status-badge.pending { background: #eff6ff; color: #2563eb; }
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.order-item:last-child { margin-bottom: 0; }
+
+.order-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.item-name {
+  margin: 0 0 4px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.item-meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.item-meta span { margin: 0 6px; color: #d1d5db; }
+
+/* Reusable Components */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px dashed #d1d5db;
+}
+
+.empty-state h3 { margin: 16px 0 8px; color: #111827; }
+.empty-state p { color: #6b7280; margin-bottom: 24px; }
+
+.action-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 32px;
+  text-align: center;
+}
+
+.action-card h3 { margin: 0 0 8px; }
+.action-card p { color: #6b7280; margin: 0 0 24px; }
+
+.primary-btn {
+  background: #111827;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.primary-btn:hover { background: #374151; }
+
+.secondary-btn {
+  background: #f3f4f6;
+  color: #111827;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.secondary-btn:hover { background: #e5e7eb; }
+
+.success-btn { background: #059669; }
+.success-btn:hover { background: #047857; }
+
+.danger-btn-solid { background: #ef4444; }
+.danger-btn-solid:hover { background: #dc2626; }
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .dashboard-layout { flex-direction: column; }
+  .dashboard-sidebar { width: 100%; }
+}
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #f9fafb;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+.camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #111827;
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.camera-btn:hover {
+  transform: scale(1.1);
+}
+
+.save-avatar-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}

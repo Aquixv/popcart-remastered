@@ -24,26 +24,39 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { data, refetch } = useQuery<GetCartResponse>(GET_CART, {
     skip: !isLoggedIn, 
   });
-  const [addToCartMutation] = useMutation(ADD_TO_CART, {
-    refetchQueries: [{ query: GET_CART }]
-  });
-  const [removeFromCartMutation] = useMutation(REMOVE_FROM_CART, {
-    refetchQueries: [{ query: GET_CART }]
-  });
-  const [decreaseQuantityMutation] = useMutation(DECREASE_QUANTITY, {
-    refetchQueries: [{ query: GET_CART }]
-  });
+  const [addToCartMutation] = useMutation(ADD_TO_CART);
+  const [removeFromCartMutation] = useMutation(REMOVE_FROM_CART);
+  const [decreaseQuantityMutation] = useMutation(DECREASE_QUANTITY);
   const authCart = data?.getCart;
   const displayCart: CartData = { items: isLoggedIn && authCart ? authCart.items : guestCart };
   const cartCount = displayCart.items.reduce((total, item) => total + item.quantity, 0);
 
   const addToCart = async (product: Product, quantity = 1) => {
-    if (isLoggedIn) {
+    if (isLoggedIn && authCart) {
+      
+      const existingItem = authCart.items.find(item => item.product._id === product._id);
+      
+      // Rebuild what the cart WILL look like
+      const optimisticItems = existingItem
+        ? authCart.items.map(item => 
+            item.product._id === product._id 
+              ? { ...item, quantity: item.quantity + quantity } 
+              : item
+          )
+        : [...authCart.items, { __typename: "CartItem", product, quantity }];
+
       try {
         await addToCartMutation({
-          variables: { productId: product._id, quantity }
+          variables: { productId: product._id, quantity },
+          optimisticResponse: {
+            __typename: "Mutation",
+            addToCart: { 
+              ...authCart, // Magic fix: Copies the correct Cart _id and user fields!
+              items: optimisticItems
+            }
+          }
         });
-      } catch (error) {
+      } catch (error){
         console.error("Failed to add to auth cart", error);
       }
     } else {
@@ -61,10 +74,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeFromCart = async (productId: string) => {
-    if (isLoggedIn) {
+    if (isLoggedIn && authCart) {
+      const optimisticItems = authCart.items.filter(item => item.product._id !== productId);
+
       try {
         await removeFromCartMutation({
-          variables: { productId }
+          variables: { productId },
+          optimisticResponse: {
+            __typename: "Mutation",
+            removeFromCart: {
+              ...authCart, // Magic fix
+              items: optimisticItems
+            }
+          }
         });
       } catch (error) {
         console.error("Failed to remove item", error);
@@ -77,11 +99,32 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const decreaseQuantity = async (productId: string) => {
-    if (isLoggedIn) {
-      try {
-        await decreaseQuantityMutation({
-          variables: { productId }
-        });
+  if (isLoggedIn && authCart) {
+    // 1. Find the item we are about to change
+    const targetItem = authCart.items.find(item => item.product._id === productId);
+    if (!targetItem) return;
+
+    // 2. Calculate the new quantity instantly
+    const newQuantity = targetItem.quantity - 1;
+
+    // 3. Rebuild the cart array exactly as it would look AFTER the server responds
+    const optimisticItems = newQuantity > 0 
+      ? authCart.items.map(item => 
+          item.product._id === productId ? { ...item, quantity: newQuantity } : item
+        )
+      : authCart.items.filter(item => item.product._id !== productId);
+
+    try {
+      await decreaseQuantityMutation({
+        variables: { productId },
+        optimisticResponse: {
+          __typename: "Mutation", 
+          decreaseQuantity: { 
+            ...authCart, // Magic fix
+            items: optimisticItems
+          }
+        }
+      });
       } catch (error) {
         console.error("Failed to decrease item", error);
       }

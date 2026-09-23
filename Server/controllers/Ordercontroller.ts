@@ -1,6 +1,7 @@
 import Order from "../models/Order";
 import Product from "../models/Product";
 import Cart from "../models/Cart";
+import sendEmail from "../util/email";
 
 export const createOrder = async (_: any, args: any, context: any) => {
   try {
@@ -26,7 +27,26 @@ export const createOrder = async (_: any, args: any, context: any) => {
     });
 
     const createdOrder = await order.save();
-    
+
+    try {
+  const htmlMessage = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2>Order Confirmed! 🎉</h2>
+      <p>Thanks for shopping with PopCart. Your order <strong>#${createdOrder._id}</strong> is being processed.</p>
+      <p>Total Paid: $${totalPrice.toFixed(2)}</p>
+      <p>We'll notify you once your items ship to ${shippingAddress.city}.</p>
+    </div>
+  `;
+    sendEmail({
+    email: context.user.email,
+    subject: 'Your PopCart Order Confirmation',
+    html: htmlMessage
+  }).catch(err => console.error("Silently failing email so order still completes:", err));
+  
+} catch (emailTriggerError) {
+  console.error("Email setup failed:", emailTriggerError);
+}
+
     for (const item of orderItems) {
       await Product.findByIdAndUpdate(
         item.product, 

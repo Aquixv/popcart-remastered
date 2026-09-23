@@ -6,7 +6,7 @@ import type { UserProfile, Order, UserInfo, OrderItem } from './types';
 import { useApolloClient } from '@apollo/client/react';
 import { UPGRADE_TO_SELLER } from '../graphql/mutations';
 import { GET_USER_PROFILE, GET_ORDERS } from '../graphql/queries';
-
+import './Dashboard.css'
 interface GetUpgradeResponse {
       upgradeToSeller: UserInfo;
     }
@@ -130,95 +130,106 @@ const Account = () => {
   if (!profile) return <div style={{ padding: '100px 20px', textAlign: 'center' }}>Loading your profile...</div>;
 
   return (
-    <div className="account-container" style={{ minHeight: '80vh', padding: '60px 5%', backgroundColor: '#f8f9fa' }}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+    <div style={{ minHeight: '80vh', padding: '60px 5%', backgroundColor: '#f9fafb' }}>
+      <div className="dashboard-layout">
         
-        <div className="account-sidebar" style={{ flex: '1', minWidth: '250px', background: '#fff', borderRadius: '15px', padding: '20px', height: 'fit-content', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-          <div style={{ textAlign: 'center', paddingBottom: '20px', borderBottom: '1px solid #eee', marginBottom: '20px' }}>
-            <div style={{ width: '80px', height: '80px', background: '#000', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 10px' }}>
-              {profile.name.charAt(0)}
-              <ProfilePicUpload></ProfilePicUpload>
+        {/* SIDEBAR */}
+        <div className="dashboard-sidebar">
+          <div className="sidebar-profile">
+            <div className="profile-upload-bounds">
+              <ProfilePicUpload />
             </div>
-            <h3 style={{ margin: '0', marginTop:'60px' }}>{profile.name}</h3>
-            <p style={{ color: '#666', fontSize: '0.9rem', margin: '5px 0 0' }}>{profile.email}</p>
+            <h3>{profile.name}</h3>
+            <p>{profile.email}</p>
           </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <button onClick={() => setActiveTab('profile')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'profile' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/512729/profile-round-1342.svg" alt="" /> My Profile</button>
-            <button onClick={() => setActiveTab('orders')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'orders' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/301014/boxes.svg" alt="" /> Order History</button>
-            <button onClick={() => setActiveTab('selling')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'selling' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> 
-              <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/147833/three-dollars-bills.svg" alt="" /> 
-              {profile.role === 'admin' ? ' Admin' : profile.role === 'seller' ? ' Seller Dashboard' : 'Selling'}
+          <nav className="dashboard-nav">
+            <button className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              My Profile
             </button>
-            <button onClick={() => setActiveTab('settings')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'settings' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/527439/settings.svg" alt="" /> Settings</button>
+            <button className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              Order History
+            </button>
+            <button className={`tab-btn ${activeTab === 'selling' ? 'active' : ''}`} onClick={() => setActiveTab('selling')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              {profile.role === 'admin' ? 'Admin' : profile.role === 'seller' ? 'Seller Dashboard' : 'Start Selling'}
+            </button>
+            <button className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              Settings
+            </button>
 
-            <button onClick={handleLogout} style={{ padding: '12px 15px', textAlign: 'left', background: '#fff0f0', color: '#d32f2f', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', marginTop: '20px' }}> <img style={{ width:'4vw', height:'2vh' }} src="https://www.svgrepo.com/show/472582/door-open.svg" alt="" /> Log Out</button>
+            <button className="tab-btn danger-btn" onClick={handleLogout}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              Log Out
+            </button>
           </nav>
         </div>
         
-        <div className="account-content" style={{ flex: '3', minWidth: '300px', background: '#fff', borderRadius: '15px', padding: '40px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+        {/* CONTENT AREA */}
+        <div className="dashboard-content">
           
           {activeTab === 'profile' && (
-            <div>
-              <h2 style={{ marginBottom: '20px', borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Profile Details</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div>
-                  <label style={{ fontSize: '0.85rem', color: '#999', textTransform: 'uppercase' }}>Full Name</label>
-                  <p style={{ fontSize: '1.1rem', fontWeight: '500', margin: '5px 0' }}>{profile.name}</p>
+            <div className="fade-in">
+              <h2 className="section-title">Profile Details</h2>
+              <div className="settings-card">
+                <div className="settings-row">
+                  <span className="settings-label">Full Name</span>
+                  <span className="settings-value">{profile.name}</span>
                 </div>
-                <div>
-                  <label style={{ fontSize: '0.85rem', color: '#999', textTransform: 'uppercase' }}>Email Address</label>
-                  <p style={{ fontSize: '1.1rem', fontWeight: '500', margin: '5px 0', overflowWrap: 'break-word', wordBreak:'break-all'}}>{profile.email}</p>
+                <div className="settings-row">
+                  <span className="settings-label">Email Address</span>
+                  <span className="settings-value">{profile.email}</span>
                 </div>
-                <div>
-                  <label style={{ fontSize: '0.85rem', color: '#999', textTransform: 'uppercase' }}></label>
-                  <p style={{ fontSize: '0.9rem', background: '#000', color: '#fff', display: 'inline-block', padding: '4px 10px', borderRadius: '12px', margin: '5px 0' }}>{profile.role.toUpperCase()}</p>
+                <div className="settings-row">
+                  <span className="settings-label">Account Type</span>
+                  <span className="role-badge">{profile.role}</span>
                 </div>
               </div>
             </div>
           )}
 
           {activeTab === 'orders' && (
-            <div>
-              <h2 style={{ marginBottom: '20px', borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Order History</h2>
+            <div className="fade-in">
+              <h2 className="section-title">Order History</h2>
               
               {loadingOrders ? (
-                <div style={{ textAlign: 'center', padding: '40px 0' }}>Loading your orders...</div>
+                <div className="empty-state">Loading your orders...</div>
               ) : myOrders.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                  <span style={{ fontSize: '4rem' }}> <img style={{ width:'10vw', height:'10vh' }} src="https://www.svgrepo.com/show/314988/shopping-bags.svg" alt="" /> </span>
-                  <h3 style={{ margin: '20px 0 10px' }}>No orders yet</h3>
-                  <p style={{ color: '#666', marginBottom: '20px' }}>When you buy something, it will appear here.</p>
+                <div className="empty-state">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                  <h3>No orders yet</h3>
+                  <p>When you buy something, it will appear here.</p>
                   <Link to="/">
-                    <button style={{ padding: '10px 20px', background: '#000', color: '#fff', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>Start Shopping</button>
+                    <button className="primary-btn">Start Shopping</button>
                   </Link>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div className="orders-container">
                   {myOrders.map(order => (
-                    <div key={order._id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '20px', background: '#fafafa' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ddd', paddingBottom: '10px', marginBottom: '15px' }}>
-                        <div>
-                          <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Order ID:{order._id.substring(order._id.length - 8).toUpperCase()}</span>
-                          <span style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
-                            {new Date(Number(order.createdAt)).toLocaleDateString()}
-                          </span>
+                    <div key={order._id} className="order-card">
+                      <div className="order-header">
+                        <div className="order-id-group">
+                          <span className="order-id">Order #{order._id.substring(order._id.length - 8).toUpperCase()}</span>
+                          <span className="order-date">{new Date(Number(order.createdAt)).toLocaleDateString()}</span>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <span style={{ fontWeight: 'bold', color: '#4CAF50', fontSize: '1.1rem' }}>${order.totalPrice.toFixed(2)}</span>
-                          <span style={{ display: 'block', fontSize: '0.85rem', color: '#1976d2', marginTop: '4px', fontWeight: '500' }}>
+                        <div className="order-status-group">
+                          <span className="order-total">${order.totalPrice.toFixed(2)}</span>
+                          <span className={`status-badge ${order.isPaid ? 'paid' : 'pending'}`}>
                             {order.isPaid ? 'Paid via Paystack' : 'Pending'}
                           </span>
                         </div>
                       </div>
                     
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div className="order-items-list">
                         {order.orderItems.map((item, index) => (
-                          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <img src={item.product?.thumbnail} alt={item.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee' }} />
-                            <div>
-                              <p style={{ margin: '0', fontWeight: '500' }}>{item.name}</p>
-                              <p style={{ margin: '0', fontSize: '0.85rem', color: '#666' }}>Qty: {item.quantity} | ${item.price.toFixed(2)} each</p>
+                          <div key={index} className="order-item">
+                            <img src={item.product?.thumbnail} alt={item.name} />
+                            <div className="order-item-details">
+                              <p className="item-name">{item.name}</p>
+                              <p className="item-meta">Qty: {item.quantity} <span>•</span> ${item.price.toFixed(2)} each</p>
                             </div>
                           </div>
                         ))}
@@ -231,46 +242,44 @@ const Account = () => {
           )}
 
           {activeTab === 'settings' && (
-            <div>
-              <h2 style={{ marginBottom: '20px', borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Account Settings</h2>
-              <p style={{ color: '#666' }}>Password changing and address management coming soon.</p>
+            <div className="fade-in">
+              <h2 className="section-title">Account Settings</h2>
+              <div className="settings-card">
+                <div className="settings-row">
+                  <span className="settings-label">Password</span>
+                  <button className="secondary-btn">Change Password</button>
+                </div>
+                <div className="settings-row">
+                  <span className="settings-label">Shipping Addresses</span>
+                  <button className="secondary-btn">Manage</button>
+                </div>
+              </div>
             </div>
           )}
           
           {activeTab === 'selling' && (
-            <div>
-              <div style={{ padding: '20px', background: '#f9f9f9', borderRadius: '8px' }}>
+            <div className="fade-in">
+              <h2 className="section-title">Seller Hub</h2>
+              <div className="action-card">
                 {profile?.role === 'customer' ? (
                   <>
                     <h3>Ready to start selling?</h3>
-                    <p style={{ color: '#666', marginBottom: '15px' }}>
-                      Open your own store and reach millions of customers today.
-                    </p>
-                    <button 
-                      onClick={handleUpgradeToSeller} 
-                      disabled={isUpgrading}
-                      style={{ padding: '10px 20px', background: '#000', color: '#fff', border: 'none', borderRadius: '5px', cursor: isUpgrading ? 'not-allowed' : 'pointer' }}
-                    >
+                    <p>Open your own store and reach millions of customers today.</p>
+                    <button onClick={handleUpgradeToSeller} disabled={isUpgrading} className="primary-btn">
                       {isUpgrading ? 'Upgrading...' : 'Become a Seller'}
                     </button>
                   </>
                 ) : profile?.role === 'seller' ? (
                   <>
                     <h3>Seller Dashboard</h3>
-                    <p style={{ color: '#666', marginBottom: '15px' }}>
-                      Manage your products, view orders, and track your revenue.
-                    </p>
+                    <p>Manage your products, view orders, and track your revenue.</p>
                     <Link to="/seller-dashboard">
-                      <button style={{ padding: '10px 20px', background: '#4CAF50', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-                        Switch to Selling
-                      </button>
+                      <button className="primary-btn success-btn">Switch to Selling</button>
                     </Link>
                   </>
                 ) : (
                   <Link to="/admin-dashboard">
-                    <button style={{ padding: '10px 20px', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-                      Admin Dashboard
-                    </button>
+                    <button className="primary-btn danger-btn-solid">Admin Dashboard</button>
                   </Link>
                 )}
               </div>

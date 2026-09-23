@@ -133,13 +133,31 @@ const ProductDetails = () => {
   return (
     <div className="product-details-container" style={{ padding: '40px 5%', display: 'flex', gap: '40px' }}>
     
-      <div className="product-gallery" style={{ flex: '1' }}>
-        <img 
-          src={product.thumbnail} 
-          alt={product.title} 
-          style={{ width: '100%', borderRadius: '15px', background: '#f5f5f5' }} 
-        />
-      </div>
+      <div 
+  className="product-gallery" 
+  style={{ 
+    flex: '1', 
+    maxHeight: '500px',
+    background: '#f9fafb', // Move background to the container
+    borderRadius: '15px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '40px' // This gives the image room to breathe!
+  }}
+>
+  <img 
+    src={product.thumbnail} 
+    alt={product.title} 
+    style={{ 
+      maxWidth: '100%', 
+      maxHeight: '100%', 
+      objectFit: 'contain',
+      mixBlendMode: 'darken', // Removes any white background from the image itself
+      filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))' // Optional: adds a slight 3D pop
+    }} 
+  />
+</div>
 
       <div className="product-info-panel" style={{ flex: '1' }}>
         <p className="brand">{product.brand}</p>
@@ -185,7 +203,13 @@ const ProductDetails = () => {
               <div key={review._id || index} style={{ padding: '15px', border: '1px solid #eee', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                   <strong>{displayName}</strong>
-                  <span style={{alignItems:'center', display:'flex', justifyContent:'center'}}><img style={{width:'15px', height:'20px'}} src="https://www.svgrepo.com/show/513408/star.svg" alt="" /> {review.rating} / 5</span>
+                  <span style={{alignItems:'center', display:'flex', justifyContent:'center'}}>
+  {[...Array(Math.round(review.rating))].map((_, i) => (
+    <svg key={i} xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#000" className="bi bi-star-fill" viewBox="0 0 16 16">
+      <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+    </svg>
+  ))}
+</span>
                 </div>
                 <p style={{ margin: 0, color: '#555' }}>{review.comment}</p>
                 <small style={{ color: '#999', display: 'block', marginTop: '10px' }}>
@@ -196,7 +220,7 @@ const ProductDetails = () => {
           })}
         </div>
 
-          <h3>Leave a Review</h3>
+          <h3></h3>
           
           {reviewError && <div style={{ color: 'red', marginBottom: '10px', padding: '10px', background: '#f8d7da', borderRadius: '5px' }}>{reviewError}</div>}
           {reviewSuccess && <div style={{ color: 'green', marginBottom: '10px', padding: '10px', background: '#d4edda', borderRadius: '5px' }}>{reviewSuccess}</div>}

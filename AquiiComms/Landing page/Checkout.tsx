@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import type { ShippingAddress, UserInfo } from './types';
 import { useApolloClient } from '@apollo/client/react';
 import { CREATE_ORDER } from '../graphql/mutations';
+import './Checkout.css'
 type PaystackResponse = {
   reference: string;
   status: string;
@@ -95,40 +96,39 @@ const Checkout = () => {
     setShippingAddress({ ...shippingAddress, [e.target.name]: e.target.value });
   };
   if (!cart || !cart.items || cart.items.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', marginTop: '50px' }}>
-        <h2>Your Cart is Empty</h2>
-        <button style={{ background: '#4CAF50', color: 'white', border: 'none', padding: '15px 30px', fontSize: '18px', borderRadius: '5px', cursor: 'pointer' }} onClick={() => navigate('/')}>Go Shopping</button>
-      </div>
-    );
-  }
-  const isFormIncomplete = !shippingAddress.address || !shippingAddress.city || !shippingAddress.country;
-
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-      <div style={{ background: '#f9f9f9', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
-        <h3>Order Summary ({cartCount} Items)</h3>
-        <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Total: ${totalAmount.toFixed(2)}</p>
-      </div>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px', background: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-        <h3 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0 }}>Shipping Address</h3>
-        <input type="text" name="address" placeholder="Street Address" onChange={handleInputChange} required style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px' }} />
-        <input type="text" name="city" placeholder="City" onChange={handleInputChange} required style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px' }}/>
-        <input type="text" name="postalCode" placeholder="Postal Code" onChange={handleInputChange} required style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px' }}/>
-        <input type="text" name="country" placeholder="Country" onChange={handleInputChange} required style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '16px' }} />
-      </div>
-
-      <div style={{
-        opacity: isFormIncomplete ? 0.5 : 1, 
-        pointerEvents: isFormIncomplete ? 'none' : 'auto'
-      }}>
-        <PaystackButton  className='pay' 
-          {...paystackProps} 
-        />
-      </div>
+    <div className="empty-cart-container">
+      <h2>Your Cart is Empty</h2>
+      <button className="primary-action-btn" onClick={() => navigate('/')}>
+        Go Shopping
+      </button>
     </div>
   );
-};
+}
 
+const isFormIncomplete = !shippingAddress.address || !shippingAddress.city || !shippingAddress.country;
+
+return (
+  <div className="checkout-container">
+    <div className="checkout-summary">
+      <h3>Order Summary ({cartCount} Items)</h3>
+      <p className="checkout-total">Total: ${totalAmount.toFixed(2)}</p>
+    </div>
+    
+    <div className="checkout-form">
+      <h3>Shipping Address</h3>
+      <div className="input-group">
+        <input type="text" name="address" placeholder="Street Address" onChange={handleInputChange} required />
+        <input type="text" name="city" placeholder="City" onChange={handleInputChange} required />
+        <input type="text" name="postalCode" placeholder="Postal Code" onChange={handleInputChange} required />
+        <input type="text" name="country" placeholder="Country" onChange={handleInputChange} required />
+      </div>
+    </div>
+
+    <div className={`checkout-action ${isFormIncomplete ? 'disabled' : ''}`}>
+      <PaystackButton className="paystack-btn" {...paystackProps} />
+    </div>
+  </div>
+);
+}
 export default Checkout;

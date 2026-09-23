@@ -93,8 +93,7 @@ mutation AddToCart($productId: ID!, $quantity: Int!) {
   addToCart(productId: $productId, quantity: $quantity) {
     user {
       name
-      email
-      avatar
+            avatar
       _id
     }
     _id
@@ -115,13 +114,14 @@ mutation AddToCart($productId: ID!, $quantity: Int!) {
 export const REMOVE_FROM_CART = gql`
 mutation RemoveFromCart($productId: ID!) {
   removeFromCart(productId: $productId) {
+    _id # <-- Apollo absolutely needs this to stitch the cache!
     user {
       name
       role
       avatar
-      email
     }
     items {
+      quantity
       product {
         title
         _id
@@ -133,10 +133,13 @@ mutation RemoveFromCart($productId: ID!) {
     }
   }
 }`
+
 export const DECREASE_QUANTITY = gql`
 mutation DecreaseQuantity($productId: ID!) {
   decreaseQuantity(productId: $productId) {
+    _id # <-- The Missing Link! Apollo needs this to stitch the cache.
     items {
+      quantity
       product {
         _id
         title
