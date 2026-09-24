@@ -203,7 +203,7 @@ const Account = () => {
                   <h3>No orders yet</h3>
                   <p>When you buy something, it will appear here.</p>
                   <Link to="/">
-                    <button className="primary-btn">Start Shopping</button>
+                    <button className="primary-btn2">Start Shopping</button>
                   </Link>
                 </div>
               ) : (
@@ -265,7 +265,7 @@ const Account = () => {
                   <>
                     <h3>Ready to start selling?</h3>
                     <p>Open your own store and reach millions of customers today.</p>
-                    <button onClick={handleUpgradeToSeller} disabled={isUpgrading} className="primary-btn">
+                    <button onClick={handleUpgradeToSeller} disabled={isUpgrading} className="primary-btn2">
                       {isUpgrading ? 'Upgrading...' : 'Become a Seller'}
                     </button>
                   </>
@@ -274,12 +274,12 @@ const Account = () => {
                     <h3>Seller Dashboard</h3>
                     <p>Manage your products, view orders, and track your revenue.</p>
                     <Link to="/seller-dashboard">
-                      <button className="primary-btn success-btn">Switch to Selling</button>
+                      <button className="primary-btn2 success-btn">Switch to Selling</button>
                     </Link>
                   </>
                 ) : (
                   <Link to="/admin-dashboard">
-                    <button className="primary-btn danger-btn-solid">Admin Dashboard</button>
+                    <button className="primary-btn2 danger-btn-solid">Admin Dashboard</button>
                   </Link>
                 )}
               </div>

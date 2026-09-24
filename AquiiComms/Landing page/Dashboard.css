@@ -31,10 +31,10 @@
 
 /* Forces the ProfilePicUpload component to stay centered and contained */
 .profile-upload-bounds {
-  width: 100px;
-  height: 100px;
+  width: 150px; /* Bumped up from 100px */
+  height: 150px;
   position: relative;
-  margin-bottom: 16px;
+  margin: 0 auto 16px auto;
 }
 
 .sidebar-profile h3 {
@@ -257,7 +257,7 @@
 .action-card h3 { margin: 0 0 8px; }
 .action-card p { color: #6b7280; margin: 0 0 24px; }
 
-.primary-btn {
+.primary-btn2 {
   background: #111827;
   color: white;
   border: none;
@@ -268,9 +268,9 @@
   transition: background 0.2s;
 }
 
-.primary-btn:hover { background: #374151; }
+.primary-btn2:hover { background: #374151; }
 
-.secondary-btn {
+.secondary-btn2 {
   background: #f3f4f6;
   color: #111827;
   border: none;
@@ -281,7 +281,7 @@
   cursor: pointer;
 }
 
-.secondary-btn:hover { background: #e5e7eb; }
+.secondary-btn2:hover { background: #e5e7eb; }
 
 .success-btn { background: #059669; }
 .success-btn:hover { background: #047857; }
@@ -297,14 +297,15 @@
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-@media (max-width: 900px) {
-  .dashboard-layout { flex-direction: column; }
-  .dashboard-sidebar { width: 100%; }
+.avatar-container {
+  position: relative;
+  width: 100%;  /* Now it will perfectly fill the 130px bounds */
+  height: 100%; /* Now it will perfectly fill the 130px bounds */
+  margin: 0 auto;
 }
 .avatar-image {
-  width: 100%;
-  height: 100%;
+  width: 110%;
+  height: 110%;
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid #f9fafb;
@@ -341,3 +342,315 @@
   font-weight: 600;
   cursor: pointer;
 }
+.orders-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  
+  /* The Scroll Lock */
+  max-height: 65vh; 
+  overflow-y: auto;
+  padding-right: 12px; /* Prevents the scrollbar from overlapping the cards */
+  
+  /* Hides the default scrollbar on Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f9fafb;
+}
+
+/* Custom Webkit Scrollbar for Chrome/Safari/Edge */
+.orders-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.orders-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.orders-container::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.orders-container::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+@media (max-width: 900px) {
+  .dashboard-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .dashboard-sidebar {
+    width: 100%;
+    padding: 10px 0 20px 0;
+    /* Strip the heavy card styling on mobile */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 0;
+  }
+
+  .sidebar-profile {
+    margin-bottom: 16px;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  /* Transform vertical nav into a horizontal swipeable bar */
+  .dashboard-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 4px 5%; /* Aligns with your main container padding */
+    
+    /* Hide scrollbars for a clean, native app look */
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+  }
+  
+  .dashboard-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Convert buttons into compact pills */
+  .tab-btn {
+    width: auto;
+    white-space: nowrap;
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 0.9rem;
+  }
+
+  .tab-btn.active {
+    background: #111827;
+    border-color: #111827;
+  }
+
+  /* Reset the dangerous button margin so it flows inline */
+  .danger-btn {
+    margin-top: 0;
+  }
+
+  .dashboard-content {
+    width: 100%;
+  }
+}
+/* --- Seller specific Additions --- */
+
+/* Inventory Grid */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.inventory-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.inventory-img-wrapper {
+  height: 160px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.inventory-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inventory-details {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.inventory-details h4 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inventory-price {
+  margin: 0 0 16px;
+  font-weight: 700;
+  color: #059669; /* Green for money */
+  font-size: 1.1rem;
+}
+
+.inventory-metrics {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: auto;
+  padding-bottom: 16px;
+}
+
+.metric-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edit-stock-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0;
+}
+
+.danger-btn-outline {
+  width: 100%;
+  color: #dc2626;
+  background: transparent;
+  border: 1px solid #fca5a5;
+}
+.danger-btn-outline:hover {
+  background: #fef2f2;
+}
+
+/* Forms */
+.form-card {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 700px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.form-input {
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-file-input {
+  padding: 24px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  background: #f9fafb;
+  text-align: center;
+  cursor: pointer;
+}
+
+.image-preview {
+  margin-top: 12px;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.form-actions {
+  margin-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 24px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.05rem;
+}
+
+/* Analytics */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.analytics-card {
+  padding: 40px 24px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid;
+}
+
+.analytics-card h3 {
+  font-size: 3rem;
+  margin: 0 0 8px;
+}
+
+.analytics-card p {
+  margin: 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+
+.success-card {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.success-card h3 { color: #166534; }
+.success-card p { color: #15803d; }
+
+.primary-card {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+.primary-card h3 { color: #1e40af; }
+.primary-card p { color: #1d4ed8; }

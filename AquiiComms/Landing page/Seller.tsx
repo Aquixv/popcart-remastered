@@ -1,19 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../src/AuthContext';
 import ProfilePicUpload from './profilepic';
 import { useQuery, useMutation } from '@apollo/client/react';
-import { useEffect } from 'react';
 import { GET_SELLER_PRODUCTS, GET_USER_PROFILE, GET_SELLER_REVENUE } from '../graphql/queries';
-import { UPDATE_PRODUCT, DELETE_PRODUCT, UPGRADE_TO_SELLER } from '../graphql/mutations';
+import { UPDATE_PRODUCT, DELETE_PRODUCT } from '../graphql/mutations';
 import type { Product, UserProfile, UserInfo } from './types';
+import './Dashboard.css'; // Make sure this is imported!
 
 interface getUserProfileQuery {
   getUserProfile: UserProfile;
-}
-
-interface UpgradeSellerMutation {
-  upgradeToSeller: UserInfo;
 }
 
 interface GetRevenueQuery {
@@ -26,10 +22,11 @@ interface GetRevenueQuery {
 interface GetProductsQuery {
   getSellerProducts: Product[];
 }
+
 const Seller = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'profile' | 'myProducts' | 'addProduct' | 'analytics'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'myProducts' | 'addProduct' | 'analytics'>('myProducts');
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
@@ -40,10 +37,8 @@ const Seller = () => {
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || "null") as UserInfo | null;
 
-  const { data: profileData, error: profileError, loading: profileLoading } = useQuery<getUserProfileQuery>(GET_USER_PROFILE, {
-    context: {
-      headers: { Authorization: `Bearer ${userInfo?.token}` }
-    }
+  const { data: profileData, error: profileError } = useQuery<getUserProfileQuery>(GET_USER_PROFILE, {
+    context: { headers: { Authorization: `Bearer ${userInfo?.token}` } }
   });
 
   useEffect(() => {
@@ -55,25 +50,19 @@ const Seller = () => {
 
   const { data: productsData, loading: loadingProducts } = useQuery<GetProductsQuery>(GET_SELLER_PRODUCTS, {
     skip: activeTab !== 'myProducts',
-    context: {
-      headers: { Authorization: `Bearer ${userInfo?.token}` }
-    },
+    context: { headers: { Authorization: `Bearer ${userInfo?.token}` } },
     fetchPolicy: 'network-only' 
   });
 
   const { data: analyticsData, loading: loadingAnalytics } = useQuery<GetRevenueQuery>(GET_SELLER_REVENUE, {
     skip: activeTab !== 'analytics',
-    context: {
-      headers: { Authorization: `Bearer ${userInfo?.token}` }
-    }
+    context: { headers: { Authorization: `Bearer ${userInfo?.token}` } }
   });
   
   const [updateProduct] = useMutation(UPDATE_PRODUCT);
-  
   const [deleteProduct] = useMutation(DELETE_PRODUCT, {
     refetchQueries: [{ query: GET_SELLER_PRODUCTS }] 
   });
-  const [upgradeToSeller, { loading: isUpgrading }] = useMutation<UpgradeSellerMutation>(UPGRADE_TO_SELLER);
 
   const profile = profileData?.getUserProfile;
   const myProducts: Product[] = productsData?.getSellerProducts || [];
@@ -90,29 +79,12 @@ const Seller = () => {
     }
 
     try {
-      await updateProduct({
-        variables: { productId, stock: updatedStock }
-      });
+      await updateProduct({ variables: { productId, stock: updatedStock } });
       alert("✅ Stock Updated!");
     } catch (error: any) {
       console.error("Update stock error:", error);
       alert(error.message || "Server error while updating stock.");
     }
-  };
-  
-  const handleUpgradeToSeller = async () => {
-    try {
-      const { data } = await upgradeToSeller();
-      localStorage.setItem('userInfo', JSON.stringify({ ...userInfo, ...data?.upgradeToSeller || null}));
-      window.location.reload(); 
-    } catch (error: any) {
-      alert(error.message || "Failed to upgrade Seller");
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
   };
 
   const handleProductSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -159,71 +131,94 @@ const Seller = () => {
     }
   };
 
-  if (!profile) return <div style={{ padding: '100px 20px', textAlign: 'center' }}>Loading your profile...</div>;
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  if (!profile) return <div className="empty-state" style={{marginTop: '100px'}}>Loading your seller profile...</div>;
 
   return (
-    <div className="Seller-container" style={{ minHeight: '80vh', padding: '60px 5%', backgroundColor: '#f8f9fa' }}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+    <div style={{ minHeight: '80vh', padding: '60px 5%', backgroundColor: '#f9fafb' }}>
+      <div className="dashboard-layout">
         
-        <div className="Seller-sidebar" style={{ flex: '1', minWidth: '250px', background: '#fff', borderRadius: '15px', padding: '20px', height: 'fit-content', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-          <div style={{ textAlign: 'center', paddingBottom: '20px', borderBottom: '1px solid #eee', marginBottom: '20px' }}>
-            <div style={{ width: '80px', height: '80px', background: '#000', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 10px' }}>
-              {profile.name?.charAt(0)}
-              <ProfilePicUpload></ProfilePicUpload>
+        {/* SIDEBAR */}
+        <div className="dashboard-sidebar">
+          <div className="sidebar-profile">
+            <div className="profile-upload-bounds">
+              <ProfilePicUpload />
             </div>
-            <h3 style={{ margin: '0', marginTop:'60px' }}>{profile.name}</h3>
-            <p style={{ color: '#666', fontSize: '0.9rem', margin: '5px 0 0' }}>{profile.email}</p>
+            <h3>{profile.name}</h3>
+            <p>{profile.email}</p>
           </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <button onClick={() => setActiveTab('myProducts')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'myProducts' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'5vw', height:'3vh', marginBottom:'-6px' }}  src="https://www.svgrepo.com/show/520561/box-open.svg" alt="" /> My Products</button>
-            <button onClick={() => setActiveTab('addProduct')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'addProduct' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }}  src="https://www.svgrepo.com/show/532994/plus.svg" alt="" /> Add New Product</button>
-            <button onClick={() => setActiveTab('analytics')} style={{ padding: '12px 15px', textAlign: 'left', background: activeTab === 'analytics' ? '#f0f0f0' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' }}> <img style={{ width:'4vw', height:'2vh' }}  src="https://www.svgrepo.com/show/404805/bar-chart.svg" alt="" /> Store Analytics</button>
-            <Link to="/account" style={{ textDecoration: 'none', marginTop: '20px' }}>
-              <button style={{ width: '100%', padding: '12px 15px', textAlign: 'left', background: '#e3f2fd', color: '#1976d2', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}> <img style={{ width:'4vw', height:'2vh'}}  src="https://www.svgrepo.com/show/521871/switch.svg" alt="" /> Switch to Buying</button>
+          <nav className="dashboard-nav">
+            <button className={`tab-btn ${activeTab === 'myProducts' ? 'active' : ''}`} onClick={() => setActiveTab('myProducts')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+              My Products
+            </button>
+            <button className={`tab-btn ${activeTab === 'addProduct' ? 'active' : ''}`} onClick={() => setActiveTab('addProduct')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Add New Product
+            </button>
+            <button className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Store Analytics
+            </button>
+            
+            <Link to="/account" style={{ textDecoration: 'none', marginTop: '16px', display: 'block' }}>
+              <button className="tab-btn" style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                Switch to Buying
+              </button>
             </Link>
             
-            <button onClick={handleLogout} style={{ padding: '12px 15px', textAlign: 'left', background: '#fff0f0', color: '#d32f2f', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', marginTop: '10px' }}> Log Out</button>
+            <button className="tab-btn danger-btn" onClick={handleLogout}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              Log Out
+            </button>
           </nav>
         </div>
-        <div className="Seller-content" style={{ flex: '3', minWidth: '300px', background: '#fff', borderRadius: '15px', padding: '40px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+
+        {/* CONTENT AREA */}
+        <div className="dashboard-content">
           
           {activeTab === 'myProducts' && (
-            <div>
-              <h2 style={{ marginBottom: '20px', borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>My Store Inventory</h2>
+            <div className="fade-in">
+              <h2 className="section-title">My Store Inventory</h2>
               
               {loadingProducts ? (
-                <p>Loading your inventory...</p>
+                <div className="empty-state">Loading your inventory...</div>
               ) : myProducts.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', background: '#f9f9f9', borderRadius: '8px' }}>
-                  <p style={{ color: '#666' }}>You haven't published any products yet.</p>
-                  <button onClick={() => setActiveTab('addProduct')} style={{ padding: '10px 20px', background: '#000', color: '#fff', border: 'none', borderRadius: '5px', marginTop: '10px', cursor: 'pointer' }}>Create First Product</button>
+                <div className="empty-state">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                  <h3>No Products Yet</h3>
+                  <p>You haven't published any products to your store.</p>
+                  <button onClick={() => setActiveTab('addProduct')} className="primary-btn">Create First Product</button>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+                <div className="inventory-grid">
                   {myProducts.map(product => (
-                    <div key={product._id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '15px', display: 'flex', flexDirection: 'column' }}>
-                      <img src={product.thumbnail} alt={product.title} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '5px', marginBottom: '10px' }} />
-                      <h4 style={{ margin: '0 0 5px 0', fontSize: '1rem' }}>{product.title}</h4>
-                      <p style={{ margin: '0 0 10px 0', color: '#4CAF50', fontWeight: 'bold' }}>${product.price.toFixed(2)}</p>
-                      <button 
-                        onClick={() => handleDeleteProduct(product._id)}
-                        style={{ padding: '5px', background: '#ffebee', color: '#d32f2f', border: '1px solid #ffcdd2', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', marginBottom: '10px' }}
-                      >Delete Product
-                      </button>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', fontSize: '0.85rem', color: '#666' }}>
-  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-    <span>Stock: {product.stock}</span>
-    <button 
-      onClick={() => handleUpdateStock(product._id, product.stock)}
-      style={{ background: 'transparent', border: 'none', color: '#1976d2', cursor: 'pointer', fontSize: '1rem', padding: '0 5px' }}
-      title="Edit Stock"
-    >
-      ✎
-    </button>
-  </div>
-  <span>Sold: {product.sold || 0}</span>
-</div>
+                    <div key={product._id} className="inventory-card">
+                      <div className="inventory-img-wrapper">
+                        <img src={product.thumbnail} alt={product.title} />
+                      </div>
+                      <div className="inventory-details">
+                        <h4 title={product.title}>{product.title}</h4>
+                        <p className="inventory-price">${product.price.toFixed(2)}</p>
+                        
+                        <div className="inventory-metrics">
+                          <div className="metric-group">
+                            <span>Stock: {product.stock}</span>
+                            <button className="edit-stock-btn" onClick={() => handleUpdateStock(product._id, product.stock)}>✎</button>
+                          </div>
+                          <span className="metric-sold">Sold: {product.sold || 0}</span>
+                        </div>
+                        
+                        <button onClick={() => handleDeleteProduct(product._id)} className="secondary-btn danger-btn-outline">
+                          Delete Product
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -232,138 +227,75 @@ const Seller = () => {
           )}
 
           {activeTab === 'addProduct' && (
-            <div>
-              <h2 style={{ marginBottom: '20px', borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Add a New Product</h2>
+            <div className="fade-in">
+              <h2 className="section-title">Add a New Product</h2>
 
-              <form onSubmit={handleProductSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '600px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Product Title</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g., Wireless Noise-Cancelling Headphones" 
-                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }} 
-                  />
+              <form onSubmit={handleProductSubmit} className="settings-card form-card">
+                <div className="form-group">
+                  <label>Product Title</label>
+                  <input type="text" className="form-input" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Wireless Noise-Cancelling Headphones" />
                 </div>
 
-                <div style={{ display: 'flex', gap: '15px' }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Price ($)</label>
-                    <input 
-                      type="number" 
-                      required
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      placeholder="99.99" 
-                      style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }} 
-                    />
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Price ($)</label>
+                    <input type="number" className="form-input" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="99.99" />
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Stock Quantity</label>
-                    <input 
-                      type="number" 
-                      required
-                      value={stock}
-                      onChange={(e) => setStock(e.target.value)}
-                      placeholder="50" 
-                      style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }} 
-                    />
+                  <div className="form-group">
+                    <label>Stock Quantity</label>
+                    <input type="number" className="form-input" required value={stock} onChange={(e) => setStock(e.target.value)} placeholder="50" />
                   </div>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Category</label>
-                  <select 
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
-                  >
+                <div className="form-group">
+                  <label>Category</label>
+                  <select className="form-input" value={category} onChange={(e) => setCategory(e.target.value)}>
                     <option value="Tech">Tech</option>
                     <option value="Fashion">Fashion</option>
                     <option value="Education">Education</option>
                   </select>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Description</label>
-                  <textarea 
-                    rows={4}
-                    required
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe your product..." 
-                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd', resize: 'vertical' }}
-                  ></textarea>
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea className="form-input form-textarea" rows={4} required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your product..."></textarea>
                 </div>
 
-                {/* <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Product Image</label>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    required
-                    onChange={(e) => setImage(e.target.files[0])}
-                    style={{ width: '100%', padding: '10px', background: '#f9f9f9', borderRadius: '5px', border: '1px dashed #ccc' }} 
-                  />
-                </div> */}
-<div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Product Image</label>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    required
-                    onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
-                    style={{ width: '100%', padding: '10px', background: '#f9f9f9', borderRadius: '5px', border: '1px dashed #ccc' }} 
-                  />
+                <div className="form-group">
+                  <label>Product Image</label>
+                  <input type="file" accept="image/*" required onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)} className="form-file-input" />
                   {image && (
-                    <div style={{ marginTop: '10px' }}>
-                      <img 
-                        src={URL.createObjectURL(image)} 
-                        alt="Preview" 
-                        style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} 
-                      />
+                    <div className="image-preview">
+                      <img src={URL.createObjectURL(image)} alt="Preview" />
                     </div>
                   )}
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={isPublishing}
-                  style={{ padding: '12px', background: '#000', color: '#fff', border: 'none', borderRadius: '5px', cursor: isPublishing ? 'not-allowed' : 'pointer', fontWeight: 'bold', marginTop: '10px' }}
-                >
-                  {isPublishing ? 'Publishing to Store...' : 'Publish Product'}
-                </button>
-                {/* <button type="submit" style={{ padding: '12px', background: '#000', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px' }}>
-                  Publish Product
-                </button> */}
+                <div className="form-actions">
+                  <button type="submit" disabled={isPublishing} className="primary-btn submit-btn">
+                    {isPublishing ? 'Publishing to Store...' : 'Publish Product'}
+                  </button>
+                </div>
               </form>
-
             </div>
           )}
 
           {activeTab === 'analytics' && (
-            <div>
-              <h2 style={{ marginBottom: '20px', borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Store Analytics</h2>
+            <div className="fade-in">
+              <h2 className="section-title">Store Analytics</h2>
               
               {loadingAnalytics ? (
-                <div style={{ textAlign: 'center', padding: '40px 0' }}> <img style={{width:'40vw', height:'60vh'}} src="https://th.bing.com/th/id/OIP.vlRhlnh4-SKa6GVtYgJaHgAAAA?w=246&h=135&c=7&r=0&o=7&dpr=1.5&pid=1.7&rm=3" alt="" /> </div>
+                <div className="empty-state">Loading your analytics...</div>
               ) : (
-                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-                  <div style={{ flex: '1', minWidth: '200px', padding: '40px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', textAlign: 'center' }}>
-                    <h1 style={{ fontSize: '3.0rem', margin: '0', color: '#166534' }}>
-                      ${revenueData.totalRevenue.toFixed(2)}
-                    </h1>
-                    <p style={{ color: '#15803d', margin: '5px 0 0', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Revenue</p>
+                <div className="analytics-grid">
+                  <div className="analytics-card success-card">
+                    <h3>${revenueData.totalRevenue.toFixed(2)}</h3>
+                    <p>Total Revenue</p>
                   </div>
-                  <div style={{ flex: '1', minWidth: '200px', padding: '40px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', textAlign: 'center' }}>
-                    <h1 style={{ fontSize: '3.5rem', margin: '0', color: '#1e40af' }}>
-                      {revenueData.totalItemsSold}
-                    </h1>
-                    <p style={{ color: '#1d4ed8', margin: '5px 0 0', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>Items Sold</p>
+                  <div className="analytics-card primary-card">
+                    <h3>{revenueData.totalItemsSold}</h3>
+                    <p>Items Sold</p>
                   </div>
-
                 </div>
               )}
             </div>

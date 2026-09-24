@@ -146,13 +146,13 @@ const Login = () => {
       <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style={{ width: '20px' }} />
       Continue with Google
     </a>
-<a 
+{/* <a 
       href={`${import.meta.env.VITE_API_URL}/users/auth/github`}
       style={{ width: '100%', padding: '12px', background: '#fff', color: '#333', border: '1px solid #ddd', borderRadius: '30px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', textDecoration: 'none' }}
     >
       <img src="https://www.svgrepo.com/show/512317/github-142.svg" alt="Github" style={{ width: '20px' }} />
       Continue with Github
-    </a>
+    </a> */}
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '25px', color: '#666', fontSize: '0.95rem' }}>
