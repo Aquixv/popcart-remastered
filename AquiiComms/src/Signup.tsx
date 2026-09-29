@@ -9,7 +9,7 @@ import { REGISTER } from '../graphql/mutations'
 import { UserInfo } from './types';
 
 interface GetsignupResponse {
-  registerUser: UserInfo;
+  register: UserInfo;
 }
 
 const Signup = () => {
@@ -52,7 +52,7 @@ const Signup = () => {
         });
         
 
-        const userData = data?.registerUser || null;
+        const userData = data?.register || null;
 
         if (userData) {
           login(userData);

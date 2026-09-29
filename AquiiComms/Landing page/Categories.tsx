@@ -7,7 +7,8 @@ const categories = [
   { id: 3, title: 'Books', img: '/Books.jpg', color: '#fce4ec' },
   { id: 4, title: 'Tech', img: '/tech.jpg', color: '#e8eaf6' },
   { id: 5, title: 'Sneakers', img: '/sneakers.jpg', color: '#f3e5f5' },
-  { id: 6, title: 'Travel', img: '/travel.jpg', color: '#fff9c4' }
+  { id: 6, title: 'Travel', img: '/travel.jpg', color: '#fff9c4' },
+  { id: 7, title: 'Clothing', img: '/Clothing.jpg', color: '#fff9c4' }
 ];
 
 const CategoryList = () => (
