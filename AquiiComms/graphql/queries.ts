@@ -250,3 +250,16 @@ query GetAdminProducts {
   }
 }
 `
+export const GET_PRODUCTS_BY_BRAND = gql`
+  query GetProductsByBrand($brand: String!) {
+    getProductsByBrand(brand: $brand) {
+      _id
+      title
+      price
+      thumbnail
+      rating
+      stock
+      brand
+    }
+  }
+`;

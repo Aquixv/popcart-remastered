@@ -1,5 +1,5 @@
 import { registerUser, loginUser, forgotPassword, resetPassword, upgradeToSeller } from './controllers/Authcontroller';
-import { getProducts, getSingleProduct, getProductsByCategory, createProductReview, getAdminProducts, getSellerProducts, deleteProduct, updateProductStock } from './controllers/Productcontroller';
+import { getProducts, getSingleProduct, getProductsByCategory, createProductReview, getAdminProducts, getSellerProducts, deleteProduct, updateProductStock, getProductsByBrand } from './controllers/Productcontroller';
 import { getCart, addToCart, removeFromCart, decreaseQuantity } from './controllers/Cartcontroller';
 import { getMyOrders, createOrder, getSellerRevenue } from './controllers/Ordercontroller';
 import { toggleFavorite, getFavorites, getAllUsers, updateUserRole, getUserProfile, } from './controllers/Usercontroller';
@@ -16,6 +16,7 @@ export const resolvers = {
     getSingleProduct: getSingleProduct,
     getProductsByCategory: getProductsByCategory,
     getAdminProducts:getAdminProducts,
+    getProductsByBrand:getProductsByBrand,
     // CART FOR NOTING
     getCart: getCart,
     

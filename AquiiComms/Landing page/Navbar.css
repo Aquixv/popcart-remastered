@@ -170,7 +170,9 @@
   font-weight: 700;
   border: 2px solid #ffffff; /* Cuts it out from the background */
 }
-
+  .mobile-search-icon {
+    display: none;
+  }
 /* Underline Animation */
 @media (min-width: 769px) {
   .dropdown:hover .dropdown-content {
@@ -383,5 +385,14 @@
   .sidebar-backdrop.active {
     opacity: 1;
     pointer-events: all; /* Becomes a solid invisible wall that catches your click! */
+  }
+  .mobile-search-icon {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #111827;
+    padding: 8px;
+    cursor: pointer;
   }
 }

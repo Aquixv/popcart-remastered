@@ -234,3 +234,13 @@ export const createProduct = async (req: Request | any, res: Response): Promise<
     return res.status(500).json({ message: "Error creating product" });
   }
 };
+export const getProductsByBrand = async (_: any, args: { brand: string }) => {
+  try {
+    const products = await Product.find({ 
+      brand: { $regex: new RegExp(`^${args.brand}$`, 'i') } 
+    });
+    return products;
+  } catch (error) {
+    throw new Error("Failed to fetch brand products");
+  }
+};

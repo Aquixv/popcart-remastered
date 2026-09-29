@@ -127,6 +127,7 @@ input OrderItemInput {
     getSellerRevenue: RevenueStats
     getAllUsers: [User!]
     getUserProfile: User!
+    getProductsByBrand(brand: String!): [Product]
   getFavorites: [Product]
   }
 

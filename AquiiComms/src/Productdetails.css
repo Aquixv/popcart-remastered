@@ -1,0 +1,29 @@
+.brand-store-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f4f6;
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: #374151;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.brand-store-link:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.brand-chevron {
+  opacity: 0.5;
+  transition: transform 0.2s ease;
+}
+
+.brand-store-link:hover .brand-chevron {
+  transform: translateX(3px);
+  opacity: 1;
+}
