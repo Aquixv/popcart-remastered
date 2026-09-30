@@ -9,7 +9,7 @@ export default function (passport: PassportStatic) {
       {
         clientID: process.env.CLIENT_ID as string,
         clientSecret: process.env.CLIENT_SECRET as string,
-        callbackURL: `${process.env.VITE_API_URL}/users/auth/google/callback`, 
+        callbackURL: `${process.env.FRONTEND_URL}/users/auth/google/callback`, 
       },
       async (accessToken: string, refreshToken: string, profile: GoogleProfile, done: any) => {
         try {

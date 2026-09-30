@@ -140,7 +140,7 @@ const Login = () => {
           </div>
 
           <a 
-      href= {`${import.meta.env.VITE_API_URL}/users/auth/google`}
+      href= {`${import.meta.env.VITE_LOGIN_API_URL}/users/auth/google`}
       style={{ width: '100%', padding: '12px', background: '#fff', color: '#333', border: '1px solid #ddd', borderRadius: '30px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', textDecoration: 'none' }}
     >
       <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style={{ width: '20px' }} />

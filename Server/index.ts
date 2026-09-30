@@ -47,8 +47,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 configurePassport(passport);
 app.use(passport.initialize());
-app.use('/api', authRoutes);
-app.use('/api/users/auth', Userrouter);
+app.use('/users/auth', Userrouter); 
+app.use('/api/products', Productrouter);
+app.use('/api/email', sendEmail);
 
 const startApolloServer = async () => {
     const server = new ApolloServer({
