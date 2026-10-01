@@ -161,26 +161,26 @@ mutation DecreaseQuantity($productId: ID!) {
 
 export const CREATE_ORDER = gql`
   mutation CreateOrder(
-    $shippingAddress: ShippingAddressInput! 
-    $paymentResult: PaymentResultInput
-    $paymentMethod: String!
-    $shippingPrice: Float!
-    $itemsPrice: Float!
-    $totalPrice: Float!
-    $orderItems: [OrderItem!]! 
+  $shippingAddress: ShippingAddressInput! 
+  $paymentResult: PaymentResultInput
+  $paymentMethod: String!
+  $shippingPrice: Float!
+  $itemsPrice: Float!
+  $totalPrice: Float!
+  $orderItems: [OrderItemInput!]!  # <--- This is the crucial fix
+) {
+  createOrder(
+    shippingAddress: $shippingAddress
+    paymentResult: $paymentResult
+    paymentMethod: $paymentMethod
+    shippingPrice: $shippingPrice
+    itemsPrice: $itemsPrice
+    totalPrice: $totalPrice
+    orderItems: $orderItems
   ) {
-    createOrder(
-      shippingAddress: $shippingAddress
-      paymentResult: $paymentResult
-      paymentMethod: $paymentMethod
-      shippingPrice: $shippingPrice
-      itemsPrice: $itemsPrice
-      totalPrice: $totalPrice
-      orderItems: $orderItems
-    ) {
-      _id
-      isPaid
-      paidAt
+    _id
+    totalPrice
+    isPaid
       # Remember to ask for the subfields back!
       shippingAddress {
         address

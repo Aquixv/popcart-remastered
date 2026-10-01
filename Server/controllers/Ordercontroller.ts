@@ -28,23 +28,40 @@ export const createOrder = async (_: any, args: any, context: any) => {
 
     const createdOrder = await order.save();
 
-    try {
-  const htmlMessage = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2>Order Confirmed! 🎉</h2>
-      <p>Thanks for shopping with PopCart. Your order <strong>#${createdOrder._id}</strong> is being processed.</p>
-      <p>Total Paid: $${totalPrice.toFixed(2)}</p>
-      <p>We'll notify you once your items ship to ${shippingAddress.city}.</p>
+    const htmlMessage = `
+  <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #111827;">Thanks for shopping with PopCart! 🎉</h2>
+    <p style="color: #4b5563;">Hi ${context.user.name}, we've successfully received your order.</p>
+    
+    <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h3 style="margin-top: 0; color: #111827;">Order Summary</h3>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        ${args.orderItems.map((item: any) => `
+          <li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
+            <span>${item.quantity}x ${item.name}</span>             <strong>$${(item.price * item.quantity).toFixed(2)}</strong>
+          </li>
+        `).join('')}
+      </ul>
+      <div style="display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 2px solid #e5e7eb; font-size: 1.2rem;">
+        <strong>Total:</strong>
+        <strong>$${args.totalPrice.toFixed(2)}</strong>
+      </div>
     </div>
-  `;
-    sendEmail({
+    
+    <p style="color: #6b7280; font-size: 0.9rem;">We'll notify you as soon as your items ship.</p>
+  </div>
+`;
+
+try {
+  await sendEmail({
     email: context.user.email,
-    subject: 'Your PopCart Order Confirmation',
+    subject: 'PopCart Order Confirmation',
     html: htmlMessage
-  }).catch(err => console.error("Silently failing email so order still completes:", err));
-  
-} catch (emailTriggerError) {
-  console.error("Email setup failed:", emailTriggerError);
+  });
+  console.log("Order confirmation email sent to:", context.user.email);
+} catch (emailError) {
+  // We log the error but DO NOT throw it, because the order itself was already paid and saved!
+  console.error("Order saved, but confirmation email failed to send:", emailError);
 }
 
     for (const item of orderItems) {
