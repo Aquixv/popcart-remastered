@@ -57,11 +57,11 @@ export const createOrder = async (_: any, args: any, context: any) => {
 `;
 
 try {
-  await sendEmail({
-    email: context.user.email,
-    subject: 'PopCart Order Confirmation',
-    html: htmlMessage
-  });
+sendEmail({
+  email: context.user.email,
+  subject: 'Your PopCart Order Confirmation',
+  html: htmlMessage
+}).catch(err => console.error("Silently failing email so order still completes:", err));
   console.log("Order confirmation email sent to:", context.user.email);
 } catch (emailError) {
   // We log the error but DO NOT throw it, because the order itself was already paid and saved!
