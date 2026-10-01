@@ -37,8 +37,12 @@ export const createOrder = async (_: any, args: any, context: any) => {
       <h3 style="margin-top: 0; color: #111827;">Order Summary</h3>
       <ul style="list-style: none; padding: 0; margin: 0;">
         ${args.orderItems.map((item: any) => `
-          <li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
-            <span>${item.quantity}x ${item.name}</span>             <strong>$${(item.price * item.quantity).toFixed(2)}</strong>
+          <li style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+            <div style="display: flex; align-items: center;">
+              <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 12px;" />
+              <span>${item.quantity}x ${item.name}</span>
+            </div>
+            <strong>$${(item.price * item.quantity).toFixed(2)}</strong>
           </li>
         `).join('')}
       </ul>
