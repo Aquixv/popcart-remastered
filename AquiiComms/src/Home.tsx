@@ -64,9 +64,9 @@ const Home = () => {
         <>
           <Hero />
           <CategoryList />
-          <ProductList title="Makeup and Skincare" categoryName="beauty" limit={4} />
-          <ProductList title="Trending Tech" categoryName="smartphones" limit={4} />
-          <ProductList title="Summer Fashion" categoryName="tops" limit={4} />
+          <ProductList title="Makeup and Skincare" categoryName="beauty" limit={5} />
+          <ProductList title="Trending Tech" categoryName="smartphones" limit={5} />
+          <ProductList title="Summer Fashion" categoryName="tops" limit={5} />
           <ServiceSection />
         </>
         

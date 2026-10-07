@@ -654,3 +654,9 @@
 }
 .primary-card h3 { color: #1e40af; }
 .primary-card p { color: #1d4ed8; }
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 16px; /* Matches standard vertical spacing */
+  }
+}

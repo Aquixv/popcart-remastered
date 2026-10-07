@@ -238,7 +238,7 @@ const Seller = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Price ($)</label>
+                    <label>Price</label>
                     <input type="number" className="form-input" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="99.99" />
                   </div>
                   <div className="form-group">
