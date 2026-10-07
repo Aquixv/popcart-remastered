@@ -12,12 +12,28 @@ text-decoration: none;
   align-items: center;
   margin-bottom: 30px;
 }
+/* 1. Convert to a single flex row with scrolling */
 .product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
+  display: flex;
+  overflow-x: auto; 
+  gap: 25px; /* Slightly tighter than your old 30px */
+  padding-bottom: 25px; /* Extra padding so the hover drop-shadow isn't clipped by the scrollbar */
+  scroll-behavior: smooth;
 }
 
+/* Optional: Make the desktop scrollbar sleek instead of chunky */
+.product-grid::-webkit-scrollbar {
+  height: 6px;
+}
+.product-grid::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+.product-grid::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+/* 2. Lock the card sizes so they don't squish or stretch */
 .product-card {
   background: #f9f9f9;
   border-radius: 20px;
@@ -26,6 +42,10 @@ text-decoration: none;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
+  
+  /* The Magic Shrink: */
+  flex: 0 0 auto; /* Forces flexbox to respect the explicit width */
+  width: 240px; /* Down from your old 280px minimum */
 }
 
 .product-card:hover {
@@ -34,9 +54,10 @@ text-decoration: none;
   background: white;
 }
 
+/* 3. Shrink the image container to match the slimmer card */
 .image-container {
   width: 100%;
-  height: 200px;
+  height: 170px; /* Reduced from 200px to cut vertical bloat */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,36 +163,24 @@ text-decoration: none;
 color: inherit;
 }
 @media (max-width: 768px) {
+  /* HORIZONTAL SCROLLING CAROUSEL (Home Page) */
   .product-grid {
     display: flex;
     overflow-x: scroll; 
     scroll-snap-type: x mandatory;
-    gap: 20px;
+    gap: 15px; /* Slightly tighter gap */
     padding-bottom: 20px;
-    -webkit-overflow-scrolling: scroll;
+    -webkit-overflow-scrolling: touch; /* Fixed syntax for smooth iOS scrolling */
   }
-@media (max-width: 768px) {
-  .page-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-    overflow-x: visible; 
-    gap: 15px;
-  }
-}
-  .product-card {
-    min-width: 280px; 
+
+  .product-grid .product-card {
+    min-width: 220px; /* Shrunk from 280px so it fits better on mobile */
+    padding: 15px; /* Reduced internal padding to save height */
     scroll-snap-align: start;
   }
-  .section-header h2{
-font-size: 14px;
-font-weight: 800;
-}
-.view-all{
-color: #222;
-font-size: small;
-text-decoration: none;
-}
-.page-grid {
+
+  /* TWO-COLUMN GRID (View All Page) */
+  .page-grid {
     display: grid !important; 
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -189,7 +198,32 @@ text-decoration: none;
     overflow: hidden;
     text-overflow: ellipsis; 
   }
-    .section-header img{
-display: none;
-}
+
+  /* UNIVERSAL MOBILE CARD SHRINKING */
+  .image-container {
+    height: 130px; /* Drastically cuts the overall card height (down from 200px) */
+    margin-bottom: 10px;
+  }
+
+  .add-to-cart-btn, .No {
+    padding: 8px; /* Slimmer buttons to save vertical space */
+    margin-top: 10px;
+    font-size: 0.9rem;
+  }
+
+  /* HEADER TEXT ADJUSTMENTS */
+  .section-header h2 {
+    font-size: 16px; /* Slightly bumped up from 14px for readability */
+    font-weight: 800;
+  }
+
+  .view-all {
+    color: #222;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  .section-header img {
+    display: none;
+  }
 }

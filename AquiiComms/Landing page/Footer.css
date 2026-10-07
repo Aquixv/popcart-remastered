@@ -2,9 +2,9 @@
 
 .main-footer {
   padding: 40px 5%; /* Drastically reduced vertical padding */
-  background: #e5e5eb; /* Matched to the slightly cooler/darker gray in your inspiration */
+  background: #fff; /* Matched to the slightly cooler/darker gray in your inspiration */
   border-top: 1px solid #d1d5db;
-  color: #4b5563;
+  color: #111827;
   font-family: system-ui, -apple-system, sans-serif;
 }
 

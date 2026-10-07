@@ -27,3 +27,8 @@
   transform: translateX(3px);
   opacity: 1;
 }
+@media (max-width: 768px) {
+  .disappear{
+    display: none;
+  }
+}
