@@ -389,4 +389,11 @@
     padding: 8px;
     cursor: pointer;
   }
+  .dropdown-content {
+    display: none; /* Hidden by default */
+  }
+  
+  .dropdown-content.show {
+    display: block; /* Only visible when React adds the 'show' class */
+  }
 }
