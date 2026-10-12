@@ -1,0 +1,44 @@
+/* Empty Cart Container */
+.empty-cart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh; /* Adjust as needed based on your header/footer height */
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* Icon Styling */
+.empty-cart-icon {
+  width: 80px; /* Size the icon appropriately */
+  height: 80px;
+  margin-bottom: 20px;
+  color: #a0aec0; /* A soft grey color so it's not overpowering */
+}
+
+/* Text Styling */
+.empty-cart-message {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 30px;
+}
+
+/* Button Styling (Assuming you reuse an existing button class or update this one) */
+.continue-shopping-btn {
+  padding: 12px 30px;
+  background-color: #000; /* Assuming black from the screenshot */
+  color: #fff;
+  border: none;
+  border-radius: 8px; /* Slightly softer corners */
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none; /* If it's a link styled as a button */
+}
+
+.continue-shopping-btn:hover {
+  background-color: #333;
+}

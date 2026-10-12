@@ -2,7 +2,9 @@ import React from 'react';
 import { useCart } from '../src/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { Product } from './types';
+import Emptycart from './EmptyCart'
 import './Cart.css'
+import EmptyCart from './EmptyCart';
 
 const Cart = () => {
   const { cart, removeFromCart, addToCart, decreaseQuantity } = useCart();
@@ -19,12 +21,7 @@ const Cart = () => {
 
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
-      <div className="empty-cart-container">
-  <h2>Your Cart is Empty</h2>
-  <button className="primary-action-btn" onClick={() => navigate('/')}>
-    Continue Shopping
-  </button>
-</div>
+      <EmptyCart></EmptyCart>
     );
   }
 
