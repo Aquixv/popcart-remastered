@@ -162,6 +162,20 @@ text-decoration: none;
 text-decoration: none;
 color: inherit;
 }
+/* ALL PRODUCTS PAGE - DESKTOP GRID */
+.product-grid.page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Automatically fits columns */
+  gap: 25px;
+  overflow-x: visible; /* Overrides the horizontal carousel scroll */
+  padding-bottom: 40px;
+}
+
+/* Allow grid cards to stretch and fill their cells naturally */
+.page-grid .product-card {
+  width: 100%; 
+  flex: none; 
+}
 @media (max-width: 768px) {
   /* HORIZONTAL SCROLLING CAROUSEL (Home Page) */
   .product-grid {
