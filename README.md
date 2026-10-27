@@ -50,7 +50,6 @@ This project focuses on:
 ├── .env.example
 └── LICENSE
 ```
-Prerequisites
 Before you begin, make sure you have installed:
 
 Node.js (LTS recommended)
@@ -111,14 +110,13 @@ npm run lint
 npm run test
 Development Notes
 This project is designed with maintainability in mind:
-
 strong TypeScript typing
 modular frontend structure
 scalable API interactions
 simple deployment flow
 Deployment
-This application can be deployed to:
 
+This application can be deployed to:
 Vercel
 Netlify
 Render
